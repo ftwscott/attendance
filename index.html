@@ -3,351 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Command v7.0 Mobile</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0d1117">
+    <title>Command | Aditya C.</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg: #090c10;
+            --bg: #0d1117;
             --card: #161b22;
             --border: #30363d;
-            --accent: #2f81f7;
-            --danger: #f85149;
-            --success: #2ea043;
-            --warning: #d29922;
-            --text-main: #f0f6fc;
+            --accent: #58a6ff;
+            --danger: #da3633;
+            --success: #238636;
+            --text-main: #c9d1d9;
             --text-sub: #8b949e;
-            --glass: rgba(22, 27, 34, 0.95);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         
         body {
             margin: 0;
             background: var(--bg);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow-x: hidden;
-            padding-bottom: 80px; /* Space for bottom nav/buttons */
+            padding-bottom: 90px; /* Space for bottom content */
         }
 
-        /* --- Header & Profile --- */
+        /* --- HEADER --- */
         .app-header {
-            padding: 20px 20px 10px 20px;
-            background: linear-gradient(180deg, rgba(22,27,34,1) 0%, rgba(9,12,16,0) 100%);
-        }
-
-        .profile-card {
+            padding: 40px 24px 20px;
+            background: linear-gradient(180deg, rgba(22,27,34,1) 0%, rgba(13,17,23,0) 100%);
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
         }
 
-        .avatar {
-            width: 50px;
-            height: 50px;
-            background: var(--accent);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: white;
-            box-shadow: 0 0 15px rgba(47, 129, 247, 0.4);
-        }
-
-        .user-info h2 { margin: 0; font-size: 1.1rem; }
-        .user-info p { margin: 2px 0 0; font-size: 0.8rem; color: var(--text-sub); font-family: monospace; }
-
-        /* --- Global Stats Circle --- */
-        .dashboard-hero {
-            text-align: center;
-            padding: 20px 0;
-        }
-
-        .pct-circle {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            border: 8px solid var(--card);
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
+        .user-info h1 { margin: 0; font-size: 1.4rem; color: white; letter-spacing: -0.5px; }
+        .user-info p { margin: 4px 0 0; font-size: 0.9rem; color: var(--text-sub); font-family: monospace; letter-spacing: 1px; }
+        
+        .global-badge {
+            background: rgba(22, 27, 34, 0.8);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 30px;
             font-weight: 800;
-            position: relative;
-            background: radial-gradient(circle, #1c2128 0%, #0d1117 100%);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-size: 0.95rem;
+            backdrop-filter: blur(10px);
         }
 
-        .pct-label { font-size: 0.7rem; color: var(--text-sub); font-weight: normal; margin-top: -5px; }
+        /* --- LIVE WIDGET --- */
+        .live-container {
+            padding: 10px 24px 30px;
+        }
 
-        /* --- Navigation Grid --- */
+        .live-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .pulsate {
+            width: 8px; height: 8px; background: var(--accent); border-radius: 50%;
+            box-shadow: 0 0 0 rgba(88, 166, 255, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 
+            0% { box-shadow: 0 0 0 0 rgba(88, 166, 255, 0.7); } 
+            70% { box-shadow: 0 0 0 10px rgba(88, 166, 255, 0); } 
+            100% { box-shadow: 0 0 0 0 rgba(88, 166, 255, 0); } 
+        }
+
+        .active-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 35px 25px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+        }
+
+        .active-card:active { transform: scale(0.96); }
+
+        .course-code { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; display: block; color: white; letter-spacing: -1px; }
+        .course-name { font-size: 1rem; color: var(--text-sub); margin-bottom: 25px; display: block; font-weight: 500; }
+        
+        .status-indicator {
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 10px 24px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.06);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background 0.3s;
+        }
+
+        /* STATE COLORS */
+        .active-card.state-present {
+            background: var(--success);
+            border-color: rgba(255,255,255,0.2);
+            color: white;
+            box-shadow: 0 20px 40px -10px rgba(35, 134, 54, 0.5);
+        }
+        .active-card.state-present .course-name { color: rgba(255,255,255,0.9); }
+        .active-card.state-present .status-indicator { background: rgba(0,0,0,0.2); }
+
+        .active-card.state-absent {
+            background: var(--danger);
+            border-color: rgba(255,255,255,0.2);
+            color: white;
+            box-shadow: 0 20px 40px -10px rgba(218, 54, 51, 0.5);
+        }
+        .active-card.state-absent .course-name { color: rgba(255,255,255,0.9); }
+        .active-card.state-absent .status-indicator { background: rgba(0,0,0,0.2); }
+
+        /* --- GRID MENU --- */
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            padding: 0 20px;
-            margin-top: 20px;
+            padding: 0 24px;
         }
 
-        .menu-card {
+        .menu-item {
             background: var(--card);
             border: 1px solid var(--border);
-            padding: 20px;
-            border-radius: 16px;
+            padding: 24px;
+            border-radius: 20px;
             text-align: center;
-            cursor: pointer;
-            transition: transform 0.1s, border-color 0.2s;
+            transition: transform 0.2s;
         }
+        .menu-item:active { transform: scale(0.98); background: rgba(22,27,34,0.6); }
+        .menu-item i { font-size: 1.6rem; margin-bottom: 12px; display: block; color: var(--text-main); }
+        .menu-item span { font-size: 0.9rem; font-weight: 600; color: var(--text-sub); }
 
-        .menu-card:active { transform: scale(0.96); }
-        .menu-card i { font-size: 1.5rem; margin-bottom: 10px; display: block; }
-        .menu-card span { font-size: 0.9rem; font-weight: 600; }
-
-        /* --- Sections (Hidden by default) --- */
-        .view-section {
-            display: none;
-            padding: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .view-section.active { display: block; }
-
+        /* --- VIEWS (Hidden by default) --- */
+        .section-view { display: none; padding: 20px 24px; animation: fadeIn 0.3s ease; }
+        .section-view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- Timetable List --- */
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .back-btn {
-            background: none;
-            border: none;
-            color: var(--text-sub);
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .day-header {
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.8rem;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .class-item {
+        .list-card {
             background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
+            padding: 16px 20px;
+            border-radius: 16px;
             margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .class-info h3 { margin: 0; font-size: 1rem; }
-        .class-info p { margin: 4px 0 0; font-size: 0.75rem; color: var(--text-sub); }
-
-        .action-group { display: flex; gap: 8px; }
-
-        .btn-check {
-            width: 40px; height: 40px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .btn-p { background: rgba(46, 160, 67, 0.15); color: var(--success); border: 1px solid rgba(46, 160, 67, 0.3); }
-        .btn-p:active { background: var(--success); color: white; }
-        
-        .btn-a { background: rgba(248, 81, 73, 0.15); color: var(--danger); border: 1px solid rgba(248, 81, 73, 0.3); }
-        .btn-a:active { background: var(--danger); color: white; }
-
-        /* --- Analytics List --- */
-        .stat-row {
-            background: var(--card);
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border: 1px solid var(--border);
-        }
-
-        .stat-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .stat-bar-bg { height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; }
-        .stat-bar-fill { height: 100%; transition: width 0.5s; }
-        
-        .badge-container { display: flex; gap: 10px; margin-top: 10px; }
-        .badge { 
-            font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; 
-            background: rgba(139, 148, 158, 0.1); color: var(--text-sub); 
-        }
-        .b-warn { color: var(--warning); border: 1px solid rgba(210, 153, 34, 0.3); }
-        .b-safe { color: var(--accent); border: 1px solid rgba(88, 166, 255, 0.3); }
-
-        /* --- Save Button --- */
-        .save-bar {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            z-index: 100;
-        }
-
-        .btn-save {
-            width: 100%;
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 1rem;
+        .back-nav {
+            padding: 10px 0 20px;
             font-weight: 700;
-            box-shadow: 0 5px 20px rgba(46, 160, 67, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            color: var(--accent);
             cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.95rem;
         }
-        
-        .btn-save:active { transform: scale(0.98); }
 
-        /* --- Settings Inputs --- */
-        select, button.reset-btn {
+        /* --- RESET BUTTON --- */
+        .reset-zone { text-align: center; margin-top: 50px; padding-bottom: 50px; }
+        .btn-reset { 
+            background: transparent; 
+            border: 1px solid var(--danger); 
+            color: var(--danger); 
+            padding: 14px 28px; 
+            border-radius: 12px; 
+            font-weight: bold; 
+            font-size: 0.9rem;
             width: 100%;
-            padding: 12px;
-            background: #0d1117;
-            border: 1px solid var(--border);
-            color: white;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 1rem;
+            opacity: 0.7;
         }
-        
-        .reset-btn { border-color: var(--danger); color: var(--danger); background: transparent; }
+        .btn-reset:active { opacity: 1; background: rgba(218, 54, 51, 0.1); }
 
     </style>
 </head>
 <body>
 
-    <div id="view-home" class="view-section active">
+    <div id="view-home" class="section-view active">
         <div class="app-header">
-            <div class="profile-card">
-                <div class="avatar">V</div>
-                <div class="user-info">
-                    <h2>Vivek / User</h2>
-                    <p>20221cbd0001</p>
-                </div>
+            <div class="user-info">
+                <h1>Aditya Chalawadi</h1>
+                <p>20221CBD0001</p>
             </div>
+            <div class="global-badge" id="global-pct" style="color: var(--success)">--%</div>
         </div>
 
-        <div class="dashboard-hero">
-            <div class="pct-circle" id="global-circle" style="border-color: var(--accent)">
-                <span id="home-pct">--%</span>
-                <span class="pct-label">AGGREGATE</span>
+        <div class="live-container">
+            <div class="live-label">
+                <div class="pulsate"></div>
+                <span id="time-display">LOADING...</span>
             </div>
-            <div style="margin-top: 15px; font-size: 0.9rem; opacity: 0.7;" id="current-day-display">
-                Wednesday
+            
+            <div id="live-card-area">
+                <div class="active-card" style="opacity: 0.5;">
+                    <span class="course-code">--</span>
+                    <span class="course-name">Searching Schedule...</span>
+                </div>
             </div>
+            <p style="text-align:center; font-size: 0.8rem; color: var(--text-sub); margin-top: 25px; opacity: 0.6;">
+                Tap once for <span style="color:var(--success)">Present</span>, twice for <span style="color:var(--danger)">Absent</span>.
+            </p>
         </div>
 
         <div class="menu-grid">
-            <div class="menu-card" onclick="navTo('today')" style="border-color: var(--accent);">
+            <div class="menu-item" onclick="switchView('timetable')">
                 <i class="fas fa-calendar-day" style="color: var(--accent)"></i>
-                <span>Log Today</span>
+                <span>Timetable</span>
             </div>
-            <div class="menu-card" onclick="navTo('timetable')">
-                <i class="fas fa-list"></i>
-                <span>Full Week</span>
-            </div>
-            <div class="menu-card" onclick="navTo('analytics')">
+            <div class="menu-item" onclick="switchView('stats')">
                 <i class="fas fa-chart-pie" style="color: var(--warning)"></i>
-                <span>Bunk Calc</span>
-            </div>
-            <div class="menu-card" onclick="navTo('settings')">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
+                <span>Analytics</span>
             </div>
         </div>
+    </div>
+
+    <div id="view-timetable" class="section-view">
+        <div class="back-nav" onclick="switchView('home')">
+            <i class="fas fa-arrow-left"></i> Dashboard
+        </div>
+        <h2 style="margin: 0 0 25px 0; font-size: 1.6rem; letter-spacing: -0.5px;">Weekly Schedule</h2>
+        <div id="full-schedule-list"></div>
+    </div>
+
+    <div id="view-stats" class="section-view">
+        <div class="back-nav" onclick="switchView('home')">
+            <i class="fas fa-arrow-left"></i> Dashboard
+        </div>
+        <h2 style="margin: 0 0 25px 0; font-size: 1.6rem; letter-spacing: -0.5px;">Analytics</h2>
+        <div id="stats-list"></div>
         
-        <div style="padding: 20px;">
-            <div class="day-header">TODAY'S STATUS</div>
-            <div id="today-preview" style="text-align:center; color: var(--text-sub); font-size: 0.9rem;">
-                </div>
+        <div class="reset-zone">
+            <button class="btn-reset" onclick="factoryReset()">⚠️ Factory Reset Data</button>
         </div>
-    </div>
-
-    <div id="view-today" class="view-section">
-        <div class="section-header">
-            <button class="back-btn" onclick="navTo('home')"><i class="fas fa-arrow-left"></i></button>
-            <h2 style="margin:0">Log Attendance</h2>
-        </div>
-        <p style="opacity: 0.6; font-size: 0.9rem; margin-bottom: 20px;">Tap P or B to update instantly.</p>
-        <div id="today-list"></div>
-        <div style="height: 60px;"></div> </div>
-
-    <div id="view-timetable" class="view-section">
-        <div class="section-header">
-            <button class="back-btn" onclick="navTo('home')"><i class="fas fa-arrow-left"></i></button>
-            <h2 style="margin:0">Weekly Schedule</h2>
-        </div>
-        <div id="full-timetable-list"></div>
-    </div>
-
-    <div id="view-analytics" class="view-section">
-        <div class="section-header">
-            <button class="back-btn" onclick="navTo('home')"><i class="fas fa-arrow-left"></i></button>
-            <h2 style="margin:0">Analytics</h2>
-        </div>
-        <div id="inventory-list"></div>
-    </div>
-
-    <div id="view-settings" class="view-section">
-        <div class="section-header">
-            <button class="back-btn" onclick="navTo('home')"><i class="fas fa-arrow-left"></i></button>
-            <h2 style="margin:0">Settings</h2>
-        </div>
-
-        <div style="background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
-            <h3 style="margin-top:0; font-size:1rem;">Saturday Schedule</h3>
-            <p style="font-size:0.8rem; color: var(--text-sub);">Select which day Saturday follows:</p>
-            <select id="sat-selector" onchange="updateSatSetting()">
-                <option value="">No Class</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-            </select>
-        </div>
-
-        <div style="margin-top: 20px;">
-            <button class="reset-btn" onclick="hardReset()">⚠ Factory Reset Data</button>
-        </div>
-    </div>
-
-    <div class="save-bar" id="save-btn-container" style="display:none">
-        <button class="btn-save" onclick="endOfDaySync()">
-            <i class="fas fa-check-circle"></i> Mark End of Day (4:15 PM)
-        </button>
     </div>
 
     <script>
         // --- DATA CONFIGURATION ---
-        const INITIAL_COURSES = {
+        const COURSES = {
             "APT4026": { name: "Aptitude", ah: 8, th: 14 },
             "CAI2500": { name: "Machine Learning (T)", ah: 4, th: 18 },
             "CAI2501": { name: "Machine Learning (L)", ah: 15, th: 25 },
@@ -361,247 +269,208 @@
             "LAW7601": { name: "Indian Constitution", ah: 2, th: 4 }
         };
 
-        const BASE_SCHEDULE = {
+        // SCHEDULE ARRAYS (Order of classes in the day)
+        const SCHEDULE = {
             "Monday": ["CAI2500", "CBD2510", "CSE2274", "CSE2274", "CSE2258", "CSE3426", "ECE3097"],
             "Tuesday": ["CAI2500", "CSE2258", "CSE3426", "CBD2510", "CAI2500", "ECE3097"],
             "Wednesday": ["CSE2274", "CSE2274", "CAI2501", "CAI2501", "LAW7601", "CSE3426", "CSE3426"],
             "Thursday": ["CBD2510", "APT4026", "APT4026", "CAI2501", "CAI2501", "ECE3097"],
-            "Friday": ["CBD2511", "CBD2511", "CSE2259", "CSE2259", "CSE2259", "CSE2259", "CSE2258"],
-            "Saturday": []
+            "Friday": ["CBD2511", "CBD2511", "CSE2259", "CSE2259", "CSE2259", "CSE2259", "CSE2258"]
         };
 
-        const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        // TIME SLOTS (Mapping time to Array Index)
+        // Note: 1:40 PM is usually the 5th period (Index 4)
+        const TIME_SLOTS = [
+            { start: "08:00", end: "09:20", index: 0 },
+            { start: "09:20", end: "10:10", index: 1 },
+            { start: "10:20", end: "11:10", index: 2 },
+            { start: "11:10", end: "12:00", index: 3 },
+            // Lunch Gap (12:00 - 13:30)
+            { start: "13:30", end: "14:20", index: 4 }, // 1:40 PM triggers this
+            { start: "14:20", end: "15:10", index: 5 },
+            { start: "15:10", end: "16:00", index: 6 }
+        ];
 
-        // --- STATE MANAGEMENT ---
-        let courses = JSON.parse(localStorage.getItem('cmd_v7_data')) || INITIAL_COURSES;
-        let satMode = localStorage.getItem('cmd_v7_sat') || "";
+        // --- STORAGE & STATE ---
+        let userData = JSON.parse(localStorage.getItem('aditya_db_final')) || COURSES;
+        let sessionState = JSON.parse(localStorage.getItem('aditya_session_final')) || {};
 
-        // --- CORE FUNCTIONS ---
-
-        function saveData() {
-            localStorage.setItem('cmd_v7_data', JSON.stringify(courses));
-            localStorage.setItem('cmd_v7_sat', satMode);
-            refreshAll();
+        function save() {
+            localStorage.setItem('aditya_db_final', JSON.stringify(userData));
+            localStorage.setItem('aditya_session_final', JSON.stringify(sessionState));
+            updateGlobal();
         }
 
-        function getSchedule(dayName) {
-            if (dayName === "Saturday") {
-                return satMode ? BASE_SCHEDULE[satMode] : [];
+        // --- CORE LOGIC ---
+        function getDayName() {
+            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            return days[new Date().getDay()];
+        }
+
+        function timeStrToVal(str) {
+            const [h, m] = str.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        function getCurrentSlotIndex() {
+            const now = new Date();
+            const nowVal = now.getHours() * 60 + now.getMinutes();
+            for (let slot of TIME_SLOTS) {
+                if (nowVal >= timeStrToVal(slot.start) && nowVal < timeStrToVal(slot.end)) {
+                    return slot.index;
+                }
             }
-            return BASE_SCHEDULE[dayName] || [];
+            return -1;
         }
 
-        function updateSatSetting() {
-            satMode = document.getElementById('sat-selector').value;
-            saveData();
-            alert("Saturday schedule updated.");
+        // --- RENDERERS ---
+        function updateLiveCard() {
+            const day = getDayName();
+            const slotIdx = getCurrentSlotIndex();
+            const container = document.getElementById('live-card-area');
+            const timeDisplay = document.getElementById('time-display');
+
+            const now = new Date();
+            timeDisplay.innerText = `${day.toUpperCase()} | ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+
+            // Check if schedule exists for today and slot is valid
+            if (SCHEDULE[day] && slotIdx !== -1 && slotIdx < SCHEDULE[day].length) {
+                const courseCode = SCHEDULE[day][slotIdx];
+                if (courseCode) {
+                    const uniqueKey = `${day}-${slotIdx}`;
+                    const currentState = sessionState[uniqueKey] || 0; 
+                    const courseName = userData[courseCode].name;
+
+                    let stateClass = "";
+                    let statusText = "Tap to Mark";
+                    let icon = '<i class="fas fa-fingerprint"></i>';
+                    
+                    if(currentState === 1) { 
+                        stateClass = "state-present"; 
+                        statusText = "Present"; 
+                        icon = '<i class="fas fa-check"></i>';
+                    }
+                    if(currentState === 2) { 
+                        stateClass = "state-absent"; 
+                        statusText = "Absent"; 
+                        icon = '<i class="fas fa-times"></i>';
+                    }
+
+                    container.innerHTML = `
+                        <div class="active-card ${stateClass}" onclick="toggleAttendance('${courseCode}', '${uniqueKey}')">
+                            <span class="course-code">${courseCode}</span>
+                            <span class="course-name">${courseName}</span>
+                            <div class="status-indicator">${icon} ${statusText}</div>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+
+            // Fallback: No Class
+            container.innerHTML = `
+                <div class="active-card" style="border: 2px dashed var(--border); background: transparent; opacity: 0.6;">
+                    <span class="course-code" style="font-size:1.5rem; color:var(--text-sub);">FREE</span>
+                    <span class="course-name" style="margin-bottom:0">No Class Detected</span>
+                </div>
+            `;
         }
 
-        function hardReset() {
-            if(confirm("Confirm Factory Reset? All logs will be lost.")) {
-                courses = JSON.parse(JSON.stringify(INITIAL_COURSES));
-                satMode = "";
-                saveData();
+        function toggleAttendance(code, key) {
+            let cur = sessionState[key] || 0;
+            let next = (cur + 1) % 3; // 0->1->2->0
+
+            // Undo previous stats
+            if (cur === 1) { userData[code].ah--; userData[code].th--; }
+            if (cur === 2) { userData[code].th--; }
+
+            // Apply new stats
+            if (next === 1) { userData[code].ah++; userData[code].th++; }
+            if (next === 2) { userData[code].th++; }
+
+            sessionState[key] = next;
+            save();
+            updateLiveCard();
+            renderStats();
+        }
+
+        function updateGlobal() {
+            let ah = 0, th = 0;
+            Object.values(userData).forEach(c => { ah += c.ah; th += c.th; });
+            const pct = th === 0 ? 0 : (ah/th)*100;
+            const el = document.getElementById('global-pct');
+            el.innerText = pct.toFixed(1) + "%";
+            el.style.color = pct >= 75 ? "var(--success)" : "var(--danger)";
+            el.style.borderColor = pct >= 75 ? "var(--success)" : "var(--danger)";
+        }
+
+        function renderStats() {
+            const div = document.getElementById('stats-list');
+            div.innerHTML = "";
+            const sorted = Object.entries(userData).sort(([,a], [,b]) => (a.ah/a.th) - (b.ah/b.th));
+
+            sorted.forEach(([code, data]) => {
+                const pct = (data.ah / data.th) * 100;
+                div.innerHTML += `
+                    <div class="list-card">
+                        <div>
+                            <div style="font-weight:700; color:white;">${code}</div>
+                            <div style="font-size:0.8rem; opacity:0.6;">${data.name}</div>
+                        </div>
+                        <div style="text-align:right">
+                            <div style="font-weight:800; font-size:1.1rem; color:${pct<75?'var(--danger)':'var(--success)'}">${pct.toFixed(0)}%</div>
+                            <div style="font-size:0.75rem; opacity:0.5;">${data.ah}/${data.th}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderTimetable() {
+            const div = document.getElementById('full-schedule-list');
+            div.innerHTML = "";
+            const today = getDayName();
+            
+            Object.keys(SCHEDULE).forEach(day => {
+                const isToday = (day === today);
+                div.innerHTML += `<div style="margin-top:25px; color:${isToday ? 'var(--accent)' : 'var(--text-sub)'}; font-weight:800; font-size:0.85rem; letter-spacing:1px; text-transform:uppercase; border-bottom: 1px solid var(--border); padding-bottom:5px; margin-bottom:10px;">${day}</div>`;
+                
+                SCHEDULE[day].forEach((code, idx) => {
+                    // Find start time
+                    const slot = TIME_SLOTS.find(t => t.index === idx);
+                    const time = slot ? slot.start : `Slot ${idx+1}`;
+                    
+                    div.innerHTML += `
+                        <div class="list-card" style="padding:12px; margin-bottom:6px; background: rgba(255,255,255,0.03);">
+                            <div style="display:flex; align-items:center; gap:15px;">
+                                <span style="font-size:0.75rem; opacity:0.5; width:40px;">${time}</span>
+                                <span style="font-size:0.9rem; font-weight:bold;">${code}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function switchView(id) {
+            document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
+            document.getElementById('view-' + id).classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        function factoryReset() {
+            if(confirm("Confirm Reset? All attendance data will be lost.")) {
+                localStorage.clear();
                 location.reload();
             }
         }
 
-        function endOfDaySync() {
-            // In a real app, this might push to a server.
-            // Here, we provide visual feedback and ensure local save.
-            saveData();
-            const btn = document.querySelector('.btn-save');
-            const originalHTML = btn.innerHTML;
-            
-            btn.style.background = "#fff";
-            btn.style.color = "#2ea043";
-            btn.innerHTML = `<i class="fas fa-check-double"></i> Synced Successfully`;
-            
-            setTimeout(() => {
-                btn.style.background = "var(--success)";
-                btn.style.color = "white";
-                btn.innerHTML = originalHTML;
-                navTo('home');
-            }, 1500);
-        }
-
-        function logClass(code, present) {
-            courses[code].th++;
-            if (present) courses[code].ah++;
-            saveData();
-        }
-
-        // --- RENDERERS ---
-
-        function getTodayName() {
-            const d = new Date();
-            return DAYS[d.getDay()];
-        }
-
-        function renderGlobalStats() {
-            let totalAh = 0, totalTh = 0;
-            Object.values(courses).forEach(c => { totalAh += c.ah; totalTh += c.th; });
-            const pct = totalTh === 0 ? 0 : (totalAh / totalTh) * 100;
-            
-            const circle = document.getElementById('global-circle');
-            const txt = document.getElementById('home-pct');
-            
-            txt.innerText = pct.toFixed(1) + "%";
-            circle.style.borderColor = pct >= 75 ? 'var(--success)' : 'var(--danger)';
-            circle.style.color = pct >= 75 ? 'var(--success)' : 'var(--danger)';
-            
-            document.getElementById('current-day-display').innerText = getTodayName() + " | Local Sync";
-        }
-
-        function renderClassList(day, containerId, interactive = true) {
-            const container = document.getElementById(containerId);
-            const classes = getSchedule(day);
-            container.innerHTML = "";
-
-            if (classes.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:30px; opacity:0.5">No classes scheduled for ${day}.</div>`;
-                return;
-            }
-
-            classes.forEach(code => {
-                const c = courses[code];
-                const div = document.createElement('div');
-                div.className = 'class-item';
-                
-                let buttons = '';
-                if(interactive) {
-                    buttons = `
-                        <div class="action-group">
-                            <button class="btn-check btn-p" onclick="logClass('${code}', true)">P</button>
-                            <button class="btn-check btn-a" onclick="logClass('${code}', false)">B</button>
-                        </div>
-                    `;
-                } else {
-                    buttons = `<span style="font-size:0.8rem; opacity:0.5">${code}</span>`;
-                }
-
-                div.innerHTML = `
-                    <div class="class-info">
-                        <h3>${c.name}</h3>
-                        <p>Current: ${c.ah}/${c.th} (${((c.ah/c.th)*100).toFixed(0)}%)</p>
-                    </div>
-                    ${buttons}
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function renderFullWeek() {
-            const container = document.getElementById('full-timetable-list');
-            container.innerHTML = "";
-            
-            ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].forEach(day => {
-                const dayHeader = document.createElement('div');
-                dayHeader.className = "day-header";
-                dayHeader.style.marginTop = "20px";
-                dayHeader.innerText = day;
-                container.appendChild(dayHeader);
-                
-                const listDiv = document.createElement('div');
-                listDiv.id = `tt-${day}`;
-                container.appendChild(listDiv);
-                
-                renderClassList(day, `tt-${day}`, false);
-            });
-        }
-
-        function renderAnalytics() {
-            const container = document.getElementById('inventory-list');
-            container.innerHTML = "";
-
-            Object.entries(courses).forEach(([code, data]) => {
-                const pct = (data.ah / data.th) * 100;
-                const isSafe = pct >= 75;
-                
-                // Bunk Calc logic
-                let badgeHtml = "";
-                if(isSafe) {
-                    // How many can I bunk?
-                    // (ah) / (th + x) >= 0.75
-                    const possibleBunks = Math.floor((data.ah - 0.75 * data.th) / 0.75);
-                    badgeHtml = `<div class="badge b-safe">Bunk Budget: ${possibleBunks}</div>`;
-                } else {
-                    // How many need to attend?
-                    // (ah + x) / (th + x) >= 0.75
-                    const needed = Math.ceil((0.75 * data.th - data.ah) / 0.25);
-                    badgeHtml = `<div class="badge b-warn">Catch Up: ${needed} Classes</div>`;
-                }
-
-                const div = document.createElement('div');
-                div.className = 'stat-row';
-                div.innerHTML = `
-                    <div class="stat-top">
-                        <span style="font-weight:bold">${data.name}</span>
-                        <span style="font-weight:bold; color: ${isSafe ? 'var(--success)' : 'var(--danger)'}">${pct.toFixed(1)}%</span>
-                    </div>
-                    <div class="stat-bar-bg">
-                        <div class="stat-bar-fill" style="width: ${Math.min(pct, 100)}%; background: ${isSafe ? 'var(--success)' : 'var(--danger)'}"></div>
-                    </div>
-                    <div class="badge-container">
-                        <div class="badge">${data.ah}/${data.th}</div>
-                        ${badgeHtml}
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function renderHomePreview() {
-            const today = getTodayName();
-            const classes = getSchedule(today);
-            const container = document.getElementById('today-preview');
-            
-            if(classes.length === 0) {
-                container.innerHTML = "No classes today. Enjoy!";
-            } else {
-                container.innerHTML = `${classes.length} Sessions Scheduled`;
-            }
-        }
-
-        // --- NAVIGATION ---
-        function navTo(viewId) {
-            // Hide all
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            
-            // Show Target
-            const target = document.getElementById(`view-${viewId}`);
-            if(target) target.classList.add('active');
-
-            // Logic hooks
-            if(viewId === 'home') {
-                renderGlobalStats();
-                renderHomePreview();
-                document.getElementById('save-btn-container').style.display = 'none';
-            } else if (viewId === 'today') {
-                renderClassList(getTodayName(), 'today-list');
-                document.getElementById('save-btn-container').style.display = 'block';
-            } else if (viewId === 'timetable') {
-                renderFullWeek();
-                document.getElementById('save-btn-container').style.display = 'none';
-            } else if (viewId === 'analytics') {
-                renderAnalytics();
-                document.getElementById('save-btn-container').style.display = 'none';
-            }
-        }
-
-        function refreshAll() {
-            // Update current view content without changing view
-            renderGlobalStats();
-            document.getElementById('sat-selector').value = satMode;
-            if(document.getElementById('view-today').classList.contains('active')) renderClassList(getTodayName(), 'today-list');
-            if(document.getElementById('view-analytics').classList.contains('active')) renderAnalytics();
-            if(document.getElementById('view-home').classList.contains('active')) renderHomePreview();
-        }
-
         // --- INIT ---
-        document.getElementById('sat-selector').value = satMode;
-        renderGlobalStats();
-        renderHomePreview();
+        setInterval(updateLiveCard, 15000); // Update every 15s
+        updateLiveCard();
+        updateGlobal();
+        renderStats();
+        renderTimetable();
 
     </script>
 </body>
