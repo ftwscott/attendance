@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#ffffff">
-    <title>Track Your Attendance</title>
+    <title>Attendance Command</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
@@ -19,13 +19,13 @@
             --bg: #ffffff;
             --surface: #f9f9f9;
             --border: #e5e5ea;
-            --accent: #FF6B00;
-            --accent-soft: #fff5eb;
+            --accent: #FF6B00; /* Orange */
+            --accent-soft: #fff0e0;
             --text-main: #1c1c1e;
             --text-sub: #8e8e93;
             --danger: #ff3b30;
             --success: #34c759;
-            --shadow: 0 4px 20px rgba(0,0,0,0.04);
+            --shadow: 0 4px 20px rgba(0,0,0,0.06);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
@@ -34,120 +34,108 @@
             margin: 0;
             background: var(--bg);
             color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex; flex-direction: column;
         }
+
+        /* --- UTILS --- */
+        .hidden { display: none !important; }
+        .btn { cursor: pointer; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.96); }
 
         /* --- SCREENS --- */
-        #screen-setup, #screen-dashboard {
-            flex: 1;
-            display: none; /* Hidden by default */
-            flex-direction: column;
-            width: 100%;
+        #setup-screen, #app-screen {
+            flex: 1; display: flex; flex-direction: column; width: 100%;
         }
 
-        /* Visible State Class */
-        .active-screen { display: flex !important; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- SETUP SCREEN (Welcome) --- */
-        #screen-setup {
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            text-align: center;
-            background: linear-gradient(180deg, #ffffff 0%, #f9f9f9 100%);
+        /* --- SETUP (Welcome) --- */
+        #setup-screen {
+            align-items: center; justify-content: center; padding: 40px; text-align: center;
+            animation: fadeIn 0.5s ease;
         }
-
-        .welcome-icon { font-size: 3rem; color: var(--accent); margin-bottom: 20px; }
-        .welcome-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; color: var(--text-main); }
-        .welcome-sub { font-size: 0.95rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.5; max-width: 300px; }
-
+        .welcome-icon { font-size: 3.5rem; color: var(--accent); margin-bottom: 20px; }
+        .welcome-title { font-size: 2rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px; }
+        .welcome-desc { font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; max-width: 300px; margin-bottom: 40px; }
+        
         .upload-btn {
-            background: var(--text-main);
-            color: white;
-            padding: 18px 30px;
-            border-radius: 16px;
-            font-weight: 700;
-            font-size: 1rem;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            cursor: pointer;
-            transition: transform 0.2s;
+            background: var(--text-main); color: white; padding: 18px 32px; border-radius: 16px;
+            font-weight: 700; font-size: 1rem; border: none; display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
-        .upload-btn:active { transform: scale(0.96); }
+        #file-input { display: none; }
 
         /* --- DASHBOARD HEADER --- */
         .header {
-            padding: 50px 24px 20px;
-            background: #ffffff;
-            border-bottom: 1px solid var(--border);
+            padding: 50px 24px 20px; background: #ffffff; border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .profile-name { font-size: 1.4rem; font-weight: 800; }
-        .profile-meta { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; font-family: monospace; }
-        .pct-badge {
-            background: var(--text-main); color: white; padding: 8px 16px; 
-            border-radius: 20px; font-weight: 800; font-size: 1rem;
+        .user-name { font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
+        .user-meta { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; font-family: monospace; }
+        .global-badge {
+            background: var(--text-main); color: #fff; padding: 10px 18px; border-radius: 30px;
+            font-weight: 800; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        /* --- CARDS --- */
+        /* --- DEADLINE BAR --- */
+        .deadline-bar {
+            background: var(--accent); color: white; text-align: center; padding: 8px;
+            font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* --- TAB NAV --- */
+        .tabs {
+            display: flex; padding: 15px 24px; gap: 15px; background: var(--surface); border-bottom: 1px solid var(--border);
+        }
+        .tab-btn {
+            flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: #fff;
+            text-align: center; font-weight: 700; font-size: 0.9rem; color: var(--text-sub);
+        }
+        .tab-btn.active {
+            background: var(--text-main); color: #fff; border-color: var(--text-main); box-shadow: var(--shadow);
+        }
+
+        /* --- CONTENT AREA --- */
+        .content { flex: 1; overflow-y: auto; padding: 20px 24px 100px; }
+
+        /* --- INSIGHT CARD --- */
         .card {
-            background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
+            background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 20px;
+            margin-bottom: 15px; box-shadow: var(--shadow); position: relative; overflow: hidden;
         }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .c-code { font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
+        .c-pct { font-size: 1.2rem; font-weight: 900; }
+        
+        .c-name { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .progress-track { width: 100%; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
+        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        
+        .c-footer { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 10px; border-radius: 10px; }
+        .c-stat { font-size: 0.8rem; font-weight: 600; color: var(--text-sub); }
+        
+        .rec-tag { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+        .rec-safe { background: rgba(52, 199, 89, 0.1); color: var(--success); }
+        .rec-danger { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
 
-        .scroll-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px;
-        }
+        /* --- MANUAL LOG BUTTONS --- */
+        .action-row { display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; }
+        .act-btn { flex: 1; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; border: none; }
+        .act-p { background: rgba(52, 199, 89, 0.1); color: var(--success); }
+        .act-a { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
 
-        /* --- STATS ITEMS --- */
-        .course-item {
-            margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border);
-        }
-        .course-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        
-        .c-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
-        .c-code { font-weight: 800; font-size: 1rem; }
-        .c-pct { font-weight: 900; font-size: 1rem; }
-        
-        .c-name { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        .bar-bg { width: 100%; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
-        .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
-        
-        .c-footer { margin-top: 8px; display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: var(--text-sub); }
-        .tag { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; text-transform: uppercase; font-weight: 800; }
-        .tag-safe { background: rgba(52, 199, 89, 0.15); color: var(--success); }
-        .tag-danger { background: rgba(255, 59, 48, 0.15); color: var(--danger); }
+        /* --- RESET --- */
+        .reset-link { text-align: center; margin-top: 30px; font-size: 0.85rem; color: var(--danger); text-decoration: underline; cursor: pointer; opacity: 0.7; }
 
-        /* --- FOOTER --- */
-        .reset-link {
-            text-align: center; margin-top: 30px; font-size: 0.85rem; 
-            color: var(--danger); font-weight: 600; text-decoration: underline; cursor: pointer;
-        }
-
-        #file-input { display: none; }
-        
         /* --- LOADER --- */
         #loader {
-            position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: rgba(255,255,255,0.95); z-index: 999; 
-            display: none; flex-direction: column; align-items: center; justify-content: center;
+            position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.98);
+            z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center;
         }
-        .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .spinner { width: 50px; height: 50px; border: 5px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     </style>
 </head>
@@ -155,89 +143,76 @@
 
     <div id="loader">
         <div class="spinner"></div>
-        <p style="margin-top:20px; font-weight:bold;">Processing File...</p>
+        <p style="margin-top:20px; font-weight:800; color:var(--text-main);">Analyzing Report...</p>
     </div>
 
-    <div id="screen-setup">
-        <div class="welcome-icon"><i class="fas fa-shield-alt"></i></div>
-        <h1 class="welcome-title">Attendance Command</h1>
-        <p class="welcome-sub">
-            No data is pre-loaded. <br>
-            Please upload your official Attendance Report (Excel or PDF) to generate your dashboard.
+    <div id="setup-screen">
+        <div class="welcome-icon"><i class="fas fa-university"></i></div>
+        <h1 class="welcome-title">Attendance<br>Command</h1>
+        <p class="welcome-desc">
+            Privacy First. Zero Data Stored.<br>
+            Upload your college attendance report (Excel or PDF) to generate your dashboard instantly.
         </p>
 
-        <label for="file-input" class="upload-btn">
-            <i class="fas fa-upload"></i> Upload Report
+        <label for="file-input" class="upload-btn btn">
+            <i class="fas fa-file-import"></i> Upload Report
         </label>
         <input type="file" id="file-input" accept=".xlsx, .xls, .pdf" onchange="handleFile(this)">
-        
-        <p style="margin-top:30px; font-size:0.75rem; color:var(--text-sub); opacity:0.6;">
-            Data is processed locally on your device.<br>Nothing is uploaded to any server.
-        </p>
     </div>
 
-    <div id="screen-dashboard">
+    <div id="app-screen" class="hidden">
         <div class="header">
             <div>
-                <div class="profile-name" id="display-name">Student</div>
-                <div class="profile-meta" id="display-roll">--</div>
+                <div class="user-name" id="disp-name">Student</div>
+                <div class="user-meta" id="disp-meta">--</div>
             </div>
-            <div class="pct-badge" id="display-global">--%</div>
+            <div class="global-badge" id="disp-global">--%</div>
+        </div>
+        
+        <div class="deadline-bar" id="disp-deadline">
+            Target: May 6 (-- Days Left)
         </div>
 
-        <div class="scroll-area">
-            
-            <div class="card" style="background: var(--accent-soft); border-color: rgba(255, 107, 0, 0.2);">
-                <div style="font-weight: 700; color: var(--accent); font-size: 0.9rem; margin-bottom: 5px;">
-                    <i class="fas fa-bullseye"></i> TARGET: 75%
-                </div>
-                <div id="status-summary" style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">
-                    Initializing...
-                </div>
-            </div>
-
-            <h3 style="margin: 10px 0 15px; font-size: 0.9rem; text-transform: uppercase; color: var(--text-sub); letter-spacing: 1px;">Course Breakdown</h3>
-            
-            <div class="card" id="courses-list">
-                </div>
-
-            <div class="reset-link" onclick="hardReset()">Reset & Upload New File</div>
+        <div class="tabs">
+            <div class="tab-btn active btn" onclick="setTab('insights')" id="tab-insights">Insights</div>
+            <div class="tab-btn btn" onclick="setTab('log')" id="tab-log">Log Data</div>
         </div>
+
+        <div class="content" id="content-area">
+            </div>
     </div>
 
     <script>
         // --- STATE ---
-        let appData = {
-            courses: {}, // Stores Code: {name, ah, th}
-            profile: { name: "Student", roll: "N/A" }
-        };
+        let appData = { courses: {}, profile: { name: "Student", roll: "N/A" } };
+        let currentTab = 'insights';
 
         // --- INIT ---
-        window.onload = function() {
-            const stored = localStorage.getItem('attendance_v9_clean');
-            if (stored) {
+        window.onload = () => {
+            const stored = localStorage.getItem('ac_data_v1');
+            if(stored) {
                 appData = JSON.parse(stored);
-                showDashboard();
-            } else {
-                showSetup();
+                showApp();
             }
         };
 
         // --- NAVIGATION ---
-        function showSetup() {
-            document.getElementById('screen-setup').classList.add('active-screen');
-            document.getElementById('screen-dashboard').classList.remove('active-screen');
+        function showApp() {
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            renderUI();
         }
 
-        function showDashboard() {
-            document.getElementById('screen-setup').classList.remove('active-screen');
-            document.getElementById('screen-dashboard').classList.add('active-screen');
+        function setTab(tab) {
+            currentTab = tab;
+            document.getElementById('tab-insights').classList.toggle('active', tab === 'insights');
+            document.getElementById('tab-log').classList.toggle('active', tab === 'log');
             renderUI();
         }
 
         function hardReset() {
-            if(confirm("Clear all data and return to setup?")) {
-                localStorage.removeItem('attendance_v9_clean');
+            if(confirm("Permanently delete all data and return to setup?")) {
+                localStorage.removeItem('ac_data_v1');
                 location.reload();
             }
         }
@@ -245,213 +220,179 @@
         // --- FILE HANDLING ---
         function handleFile(input) {
             const file = input.files[0];
-            if (!file) return;
-
+            if(!file) return;
             document.getElementById('loader').style.display = 'flex';
+            
             const type = file.name.split('.').pop().toLowerCase();
-
-            if (type === 'xlsx' || type === 'xls') {
-                parseExcel(file);
-            } else if (type === 'pdf') {
-                parsePDF(file);
-            } else {
-                alert("Unsupported file. Please use Excel (.xlsx) or PDF.");
-                document.getElementById('loader').style.display = 'none';
-            }
+            if(type === 'pdf') parsePDF(file);
+            else if(['xlsx','xls'].includes(type)) parseExcel(file);
+            else { alert("Invalid file type."); document.getElementById('loader').style.display = 'none'; }
         }
 
-        // --- PARSER: EXCEL ---
-        function parseExcel(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const json = XLSX.utils.sheet_to_json(sheet, {header: 1}); // Array of Arrays
-
-                    // Heuristic: Find header row
-                    let headerRow = -1;
-                    for (let i = 0; i < Math.min(json.length, 20); i++) {
-                        const rowStr = JSON.stringify(json[i]).toLowerCase();
-                        if (rowStr.includes('code') || rowStr.includes('course') || rowStr.includes('subject')) {
-                            headerRow = i;
-                            break;
-                        }
-                    }
-
-                    if (headerRow === -1) throw new Error("Could not find table headers.");
-
-                    // Extract Data
-                    let extracted = {};
-                    // Basic column detection (naive)
-                    // We assume standard columns exist somewhere in the row
-                    const rowHeaders = json[headerRow].map(x => String(x).toLowerCase());
-                    const idxCode = rowHeaders.findIndex(h => h.includes('code'));
-                    const idxName = rowHeaders.findIndex(h => h.includes('name') || h.includes('title') || h.includes('subject'));
-                    
-                    // Look for numbers for stats
-                    // Often labelled "Attended", "Total", "Conducted", "%"
-                    const idxAh = rowHeaders.findIndex(h => h.includes('attend') || h.includes('present'));
-                    const idxTh = rowHeaders.findIndex(h => h.includes('total') || h.includes('conduct') || h.includes('held'));
-
-                    if (idxCode === -1 || idxAh === -1 || idxTh === -1) throw new Error("Columns not identified.");
-
-                    for (let i = headerRow + 1; i < json.length; i++) {
-                        const row = json[i];
-                        if (!row || !row[idxCode]) continue;
-
-                        const code = String(row[idxCode]).trim();
-                        const name = idxName !== -1 ? String(row[idxName]).trim() : "Course " + code;
-                        const ah = parseInt(row[idxAh]) || 0;
-                        const th = parseInt(row[idxTh]) || 0;
-
-                        if (th > 0) {
-                            extracted[code] = { name, ah, th };
-                        }
-                    }
-
-                    // Try to find Name/Roll in top rows
-                    for(let i=0; i<headerRow; i++) {
-                        const str = (json[i] || []).join(" ");
-                        const nameMatch = str.match(/(?:Name|Student)\s*[:\-]?\s*([A-Za-z\s]+)/i);
-                        if(nameMatch) appData.profile.name = nameMatch[1].trim();
-                        const rollMatch = str.match(/([0-9]{5,}[A-Z0-9]*)/); // Generic ID pattern
-                        if(rollMatch) appData.profile.roll = rollMatch[1];
-                    }
-
-                    finalizeData(extracted);
-
-                } catch (err) {
-                    console.error(err);
-                    alert("Error parsing Excel. Ensure it has standard headers (Code, Attended, Total).");
-                    document.getElementById('loader').style.display = 'none';
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        // --- PARSER: PDF ---
+        // --- PARSERS ---
         async function parsePDF(file) {
             try {
                 const buffer = await file.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument(buffer).promise;
-                let fullText = "";
-
-                for (let i = 1; i <= pdf.numPages; i++) {
+                let text = "";
+                for(let i=1; i<=pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
-                    const txt = await page.getTextContent();
-                    fullText += txt.items.map(s => s.str).join(" ") + " ";
+                    const tc = await page.getTextContent();
+                    text += tc.items.map(s=>s.str).join(" ") + " ";
                 }
-
+                
                 // Extract Metadata
-                const nameMatch = fullText.match(/(?:Name|Student)\s*[:\-]?\s*([A-Za-z\s\.]+)/i);
-                if(nameMatch) appData.profile.name = nameMatch[1].trim().substring(0, 25);
+                const nameM = text.match(/(?:Name|Student)\s*[:\-]?\s*([A-Za-z\s\.]+)/i);
+                if(nameM) appData.profile.name = nameM[1].trim().substring(0, 25);
                 
-                const rollMatch = fullText.match(/[0-9]{4,}[A-Z0-9]+/); // Generic Roll Pattern
-                if(rollMatch) appData.profile.roll = rollMatch[0];
+                const rollM = text.match(/[0-9]{4,}[A-Z0-9]+/); 
+                if(rollM) appData.profile.roll = rollM[0];
 
-                // Extract Table Rows using Regex
-                // Regex looks for: [Code] [Name] [Num] [Num]
+                // Extract Table: Code Name AH TH
                 const regex = /([A-Z0-9]{4,10})\s+(.+?)\s+(\d+)\s+(\d+)/g;
-                let match;
-                let extracted = {};
-
-                while ((match = regex.exec(fullText)) !== null) {
+                let match, found={};
+                while((match = regex.exec(text)) !== null) {
                     const code = match[1];
-                    let name = match[2].trim().replace(/[^a-zA-Z0-9\s\-\(\)]/g, ''); // Clean special chars
-                    const num1 = parseInt(match[3]);
-                    const num2 = parseInt(match[4]);
-                    
-                    // Logic: The larger number is Total, smaller is Attended
-                    const th = Math.max(num1, num2);
-                    const ah = Math.min(num1, num2);
-
-                    if (th > 0 && name.length > 3) {
-                        extracted[code] = { name, ah, th };
-                    }
+                    let name = match[2].trim().replace(/[^a-zA-Z0-9\s\-\(\)]/g, '');
+                    const n1 = parseInt(match[3]), n2 = parseInt(match[4]);
+                    if(name.length > 3) found[code] = { name: name, ah: Math.min(n1,n2), th: Math.max(n1,n2) };
                 }
 
-                if (Object.keys(extracted).length === 0) throw new Error("No table data found.");
-                
-                finalizeData(extracted);
-
-            } catch (err) {
-                console.error(err);
-                alert("Error reading PDF. Please try the Excel version if available.");
-                document.getElementById('loader').style.display = 'none';
-            }
+                if(Object.keys(found).length === 0) throw new Error("No data found");
+                finalize(found);
+            } catch(e) { console.error(e); alert("PDF Error. Try Excel."); document.getElementById('loader').style.display='none'; }
         }
 
-        function finalizeData(extractedCourses) {
-            appData.courses = extractedCourses;
-            localStorage.setItem('attendance_v9_clean', JSON.stringify(appData));
+        function parseExcel(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const wb = XLSX.read(e.target.result, {type:'array'});
+                    const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1});
+                    
+                    // Find header row
+                    let hRow = -1;
+                    for(let i=0; i<Math.min(json.length,20); i++) {
+                        const s = JSON.stringify(json[i]).toLowerCase();
+                        if(s.includes('code') || s.includes('subject')) { hRow=i; break; }
+                    }
+                    if(hRow===-1) throw new Error("No headers");
+
+                    // Get Indices
+                    const rowH = json[hRow].map(x=>String(x).toLowerCase());
+                    const iCode = rowH.findIndex(h=>h.includes('code'));
+                    const iAh = rowH.findIndex(h=>h.includes('attend') || h.includes('present'));
+                    const iTh = rowH.findIndex(h=>h.includes('total') || h.includes('conduct'));
+                    
+                    if(iCode<0 || iAh<0 || iTh<0) throw new Error("Columns missing");
+
+                    let found={};
+                    for(let i=hRow+1; i<json.length; i++) {
+                        const r = json[i];
+                        if(r && r[iCode]) {
+                            const code = String(r[iCode]).trim();
+                            const ah = parseInt(r[iAh])||0, th = parseInt(r[iTh])||0;
+                            if(th>0) found[code] = { name: "Course "+code, ah, th }; // Simplified name if not found
+                        }
+                    }
+                    finalize(found);
+                } catch(e) { console.error(e); alert("Excel Error."); document.getElementById('loader').style.display='none'; }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function finalize(courses) {
+            appData.courses = courses;
+            localStorage.setItem('ac_data_v1', JSON.stringify(appData));
             document.getElementById('loader').style.display = 'none';
-            showDashboard();
+            showApp();
         }
 
-        // --- UI RENDERER ---
-        function renderUI() {
-            // Profile
-            document.getElementById('display-name').innerText = appData.profile.name;
-            document.getElementById('display-roll').innerText = appData.profile.roll;
+        // --- CORE LOGIC ---
+        function updateStats(code, isPresent) {
+            appData.courses[code].th++;
+            if(isPresent) appData.courses[code].ah++;
+            localStorage.setItem('ac_data_v1', JSON.stringify(appData));
+            renderUI();
+        }
 
-            // Stats
-            let totalAh = 0, totalTh = 0;
-            const container = document.getElementById('courses-list');
+        function renderUI() {
+            // Header
+            document.getElementById('disp-name').innerText = appData.profile.name;
+            document.getElementById('disp-meta').innerText = appData.profile.roll;
+
+            // Deadline
+            const now = new Date(), currentYear = now.getFullYear();
+            let target = new Date(`${currentYear}-05-06`);
+            if(now > target) target.setFullYear(currentYear+1);
+            const days = Math.ceil((target-now)/(1000*60*60*24));
+            document.getElementById('disp-deadline').innerText = `Target: May 6 (${days} Days Left)`;
+
+            // Content
+            const container = document.getElementById('content-area');
             container.innerHTML = "";
 
-            const sorted = Object.entries(appData.courses).sort(([,a], [,b]) => (a.ah/a.th) - (b.ah/b.th));
+            // Global Pct
+            let tAh=0, tTh=0;
+            const sorted = Object.entries(appData.courses).sort(([,a],[,b]) => (a.ah/a.th)-(b.ah/b.th));
 
             sorted.forEach(([code, c]) => {
-                totalAh += c.ah;
-                totalTh += c.th;
-                const pct = (c.ah / c.th) * 100;
+                tAh += c.ah; tTh += c.th;
+                const pct = (c.ah/c.th)*100;
                 const isSafe = pct >= 75;
 
-                // Insight Calc
+                // Insight Logic
                 let tag = "";
-                if (isSafe) {
-                    const bunk = Math.floor((c.ah - 0.75 * c.th) / 0.75);
-                    tag = `<span class="tag tag-safe">Can Bunk: ${bunk}</span>`;
+                if(isSafe) {
+                    const bunk = Math.floor((c.ah - 0.75*c.th)/0.75);
+                    tag = `<span class="rec-tag rec-safe">Bunk: ${bunk}</span>`;
                 } else {
-                    const need = Math.ceil((0.75 * c.th - c.ah) / 0.25);
-                    tag = `<span class="tag tag-danger">Must Attend: ${need}</span>`;
+                    const need = Math.ceil((0.75*c.th - c.ah)/0.25);
+                    tag = `<span class="rec-tag rec-danger">Attend: ${need}</span>`;
+                }
+
+                // Conditional UI based on Tab
+                let footerHtml = "";
+                if(currentTab === 'insights') {
+                    footerHtml = `
+                        <div class="c-footer">
+                            <span class="c-stat">${c.ah}/${c.th} Sessions</span>
+                            ${tag}
+                        </div>
+                    `;
+                } else {
+                    footerHtml = `
+                        <div class="action-row">
+                            <button class="act-btn btn act-p" onclick="updateStats('${code}', true)">Present</button>
+                            <button class="act-btn btn act-a" onclick="updateStats('${code}', false)">Absent</button>
+                        </div>
+                    `;
                 }
 
                 container.innerHTML += `
-                    <div class="course-item">
-                        <div class="c-header">
+                    <div class="card">
+                        <div class="card-header">
                             <span class="c-code">${code}</span>
-                            <span class="c-pct" style="color: ${isSafe ? 'var(--success)' : 'var(--danger)'}">${pct.toFixed(0)}%</span>
+                            <span class="c-pct" style="color:${isSafe?'var(--success)':'var(--danger)'}">${pct.toFixed(0)}%</span>
                         </div>
                         <div class="c-name">${c.name}</div>
-                        <div class="bar-bg">
-                            <div class="bar-fill" style="width:${pct}%; background: ${isSafe ? 'var(--success)' : 'var(--danger)'}"></div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width:${Math.min(pct,100)}%; background:${isSafe?'var(--success)':'var(--danger)'}"></div>
                         </div>
-                        <div class="c-footer">
-                            <span>${c.ah}/${c.th} Classes</span>
-                            ${tag}
-                        </div>
+                        ${footerHtml}
                     </div>
                 `;
             });
 
-            // Global
-            const globalPct = totalTh === 0 ? 0 : (totalAh / totalTh) * 100;
-            document.getElementById('display-global').innerText = globalPct.toFixed(1) + "%";
-            
-            // Status Summary
-            const statusEl = document.getElementById('status-summary');
-            if(globalPct >= 75) {
-                statusEl.innerHTML = "You are Safe. <span style='font-weight:400; font-size:0.9rem'>Keep it up!</span>";
-                statusEl.style.color = "var(--success)";
-            } else {
-                statusEl.innerHTML = "Action Required. <span style='font-weight:400; font-size:0.9rem'>Check subjects below.</span>";
-                statusEl.style.color = "var(--danger)";
-            }
-        }
+            // Update Global Badge
+            const gPct = tTh===0?0:(tAh/tTh)*100;
+            const gEl = document.getElementById('disp-global');
+            gEl.innerText = gPct.toFixed(1) + "%";
+            gEl.style.background = gPct >= 75 ? "var(--text-main)" : "var(--danger)";
 
+            // Add Reset Link
+            container.innerHTML += `<div class="reset-link" onclick="hardReset()">Reset Data</div>`;
+        }
     </script>
 </body>
 </html>
