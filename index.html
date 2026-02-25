@@ -12,6 +12,8 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 
     <style>
@@ -31,111 +33,88 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         
         body {
-            margin: 0;
-            background: var(--bg);
-            color: var(--text-main);
+            margin: 0; background: var(--bg); color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-            min-height: 100vh;
-            display: flex; flex-direction: column;
+            height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* --- UTILS --- */
         .hidden { display: none !important; }
         .btn { cursor: pointer; transition: transform 0.1s; }
         .btn:active { transform: scale(0.96); }
 
         /* --- SCREENS --- */
-        #setup-screen, #app-screen {
-            flex: 1; display: flex; flex-direction: column; width: 100%;
-        }
+        #setup-screen, #app-screen { flex: 1; display: flex; flex-direction: column; width: 100%; overflow: hidden; }
 
-        /* --- SETUP (Welcome) --- */
-        #setup-screen {
-            align-items: center; justify-content: center; padding: 40px; text-align: center;
-            animation: fadeIn 0.5s ease;
-        }
+        /* --- SETUP --- */
+        #setup-screen { align-items: center; justify-content: center; padding: 40px; text-align: center; }
         .welcome-icon { font-size: 3.5rem; color: var(--accent); margin-bottom: 20px; }
         .welcome-title { font-size: 2rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px; }
-        .welcome-desc { font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; max-width: 300px; margin-bottom: 40px; }
-        
         .upload-btn {
             background: var(--text-main); color: white; padding: 18px 32px; border-radius: 16px;
             font-weight: 700; font-size: 1rem; border: none; display: flex; align-items: center; gap: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-top: 30px;
         }
         #file-input { display: none; }
 
-        /* --- DASHBOARD HEADER --- */
+        /* --- HEADER --- */
         .header {
-            padding: 50px 24px 20px; background: #ffffff; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
+            padding: 50px 24px 15px; background: #ffffff; border-bottom: 1px solid var(--border);
         }
+        .college-name { font-size: 0.75rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
         .user-name { font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
-        .user-meta { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; font-family: monospace; }
-        .global-badge {
-            background: var(--text-main); color: #fff; padding: 10px 18px; border-radius: 30px;
-            font-weight: 800; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        /* --- DEADLINE BAR --- */
-        .deadline-bar {
-            background: var(--accent); color: white; text-align: center; padding: 8px;
-            font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-        }
-
-        /* --- TAB NAV --- */
-        .tabs {
-            display: flex; padding: 15px 24px; gap: 15px; background: var(--surface); border-bottom: 1px solid var(--border);
-        }
+        .user-meta { font-size: 0.85rem; color: var(--text-sub); margin-top: 2px; font-family: monospace; }
+        
+        /* --- TABS --- */
+        .tabs { display: flex; padding: 10px 24px; gap: 10px; background: var(--surface); border-bottom: 1px solid var(--border); }
         .tab-btn {
-            flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: #fff;
-            text-align: center; font-weight: 700; font-size: 0.9rem; color: var(--text-sub);
+            flex: 1; padding: 10px; border-radius: 10px; background: #fff; border: 1px solid var(--border);
+            text-align: center; font-weight: 700; font-size: 0.85rem; color: var(--text-sub);
         }
-        .tab-btn.active {
-            background: var(--text-main); color: #fff; border-color: var(--text-main); box-shadow: var(--shadow);
-        }
+        .tab-btn.active { background: var(--text-main); color: #fff; border-color: var(--text-main); }
 
-        /* --- CONTENT AREA --- */
-        .content { flex: 1; overflow-y: auto; padding: 20px 24px 100px; }
+        /* --- CONTENT --- */
+        .content { flex: 1; overflow-y: auto; padding: 20px 24px 80px; }
 
-        /* --- INSIGHT CARD --- */
+        /* --- CARDS --- */
         .card {
-            background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 20px;
-            margin-bottom: 15px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+            background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 18px;
+            margin-bottom: 12px; box-shadow: var(--shadow);
         }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .c-code { font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
-        .c-pct { font-size: 1.2rem; font-weight: 900; }
+        .c-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .c-code { font-size: 1rem; font-weight: 800; }
+        .c-pct { font-size: 1.1rem; font-weight: 900; }
+        .c-name { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .progress-track { width: 100%; height: 6px; background: #f0f0f0; border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+        .progress-fill { height: 100%; border-radius: 4px; }
         
-        .c-name { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        .progress-track { width: 100%; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
-        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
-        
-        .c-footer { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 10px; border-radius: 10px; }
-        .c-stat { font-size: 0.8rem; font-weight: 600; color: var(--text-sub); }
-        
-        .rec-tag { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
-        .rec-safe { background: rgba(52, 199, 89, 0.1); color: var(--success); }
-        .rec-danger { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
-
-        /* --- MANUAL LOG BUTTONS --- */
-        .action-row { display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; }
-        .act-btn { flex: 1; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; border: none; }
+        .action-row { display: flex; gap: 8px; }
+        .act-btn { flex: 1; padding: 8px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; border: none; }
         .act-p { background: rgba(52, 199, 89, 0.1); color: var(--success); }
         .act-a { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
 
-        /* --- RESET --- */
-        .reset-link { text-align: center; margin-top: 30px; font-size: 0.85rem; color: var(--danger); text-decoration: underline; cursor: pointer; opacity: 0.7; }
+        /* --- CONSOLIDATED VIEW --- */
+        .filter-row { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .filter-chip { 
+            padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; 
+            background: #eee; color: var(--text-sub); border: none; white-space: nowrap;
+        }
+        .filter-chip.active { background: var(--accent); color: white; }
+
+        .log-group { margin-bottom: 20px; }
+        .log-date { font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; text-transform: uppercase; }
+        .log-item { display: flex; justify-content: space-between; padding: 10px; background: #fff; border-bottom: 1px solid var(--border); }
+        .log-item:last-child { border-bottom: none; }
+        .log-status { font-weight: 800; font-size: 0.8rem; }
+        .s-p { color: var(--success); }
+        .s-a { color: var(--danger); }
 
         /* --- LOADER --- */
         #loader {
             position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.98);
-            z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center;
         }
-        .spinner { width: 50px; height: 50px; border: 5px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     </style>
 </head>
@@ -143,39 +122,41 @@
 
     <div id="loader">
         <div class="spinner"></div>
-        <p style="margin-top:20px; font-weight:800; color:var(--text-main);">Analyzing Report...</p>
+        <p id="loader-text" style="margin-top:20px; font-weight:800; color:var(--text-main);">Processing...</p>
+        <p style="font-size:0.8rem; color:var(--text-sub); margin-top:5px;">OCR can take a moment for images</p>
     </div>
 
     <div id="setup-screen">
-        <div class="welcome-icon"><i class="fas fa-university"></i></div>
-        <h1 class="welcome-title">Attendance<br>Command</h1>
-        <p class="welcome-desc">
-            Privacy First. Zero Data Stored.<br>
-            Upload your college attendance report (Excel or PDF) to generate your dashboard instantly.
+        <div class="welcome-icon"><i class="fas fa-eye"></i></div>
+        <h1 class="welcome-title">Attendance OCR</h1>
+        <p style="color:var(--text-sub); max-width: 300px; line-height: 1.5;">
+            Upload your college report (PDF or Excel). <br>We scan for College Name, Courses, and Stats automatically.
         </p>
-
         <label for="file-input" class="upload-btn btn">
-            <i class="fas fa-file-import"></i> Upload Report
+            <i class="fas fa-upload"></i> Upload & Scan
         </label>
         <input type="file" id="file-input" accept=".xlsx, .xls, .pdf" onchange="handleFile(this)">
     </div>
 
     <div id="app-screen" class="hidden">
         <div class="header">
-            <div>
-                <div class="user-name" id="disp-name">Student</div>
-                <div class="user-meta" id="disp-meta">--</div>
+            <div class="college-name" id="disp-college">DETECTING COLLEGE...</div>
+            <div style="display:flex; justify-content:space-between; align-items:end;">
+                <div>
+                    <div class="user-name" id="disp-name">Student</div>
+                    <div class="user-meta" id="disp-roll">--</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:1.5rem; font-weight:900;" id="disp-global">--%</div>
+                    <div style="font-size:0.7rem; color:var(--text-sub);">OVERALL</div>
+                </div>
             </div>
-            <div class="global-badge" id="disp-global">--%</div>
-        </div>
-        
-        <div class="deadline-bar" id="disp-deadline">
-            Target: May 6 (-- Days Left)
         </div>
 
         <div class="tabs">
-            <div class="tab-btn active btn" onclick="setTab('insights')" id="tab-insights">Insights</div>
-            <div class="tab-btn btn" onclick="setTab('log')" id="tab-log">Log Data</div>
+            <div class="tab-btn active btn" onclick="switchTab('insights')" id="t-insights">Insights</div>
+            <div class="tab-btn btn" onclick="switchTab('consolidated')" id="t-consolidated">Consolidated</div>
+            <div class="tab-btn btn" onclick="switchTab('log')" id="t-log">Action</div>
         </div>
 
         <div class="content" id="content-area">
@@ -183,17 +164,18 @@
     </div>
 
     <script>
-        // --- STATE ---
-        let appData = { courses: {}, profile: { name: "Student", roll: "N/A" } };
+        // --- DATA MODEL ---
+        let appData = {
+            courses: {},
+            history: [], // { date: timestamp, code: string, status: 'P'|'A', day: 'Mon' }
+            profile: { name: "Student", roll: "N/A", college: "My College" }
+        };
         let currentTab = 'insights';
+        let viewFilter = 'daily'; // daily, weekly, monthly
 
-        // --- INIT ---
         window.onload = () => {
-            const stored = localStorage.getItem('ac_data_v1');
-            if(stored) {
-                appData = JSON.parse(stored);
-                showApp();
-            }
+            const stored = localStorage.getItem('ocr_data_v1');
+            if(stored) { appData = JSON.parse(stored); showApp(); }
         };
 
         // --- NAVIGATION ---
@@ -203,195 +185,258 @@
             renderUI();
         }
 
-        function setTab(tab) {
+        function switchTab(tab) {
             currentTab = tab;
-            document.getElementById('tab-insights').classList.toggle('active', tab === 'insights');
-            document.getElementById('tab-log').classList.toggle('active', tab === 'log');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('t-'+tab).classList.add('active');
             renderUI();
         }
 
-        function hardReset() {
-            if(confirm("Permanently delete all data and return to setup?")) {
-                localStorage.removeItem('ac_data_v1');
-                location.reload();
-            }
+        function setFilter(filter) {
+            viewFilter = filter;
+            renderUI();
         }
 
-        // --- FILE HANDLING ---
+        function reset() {
+            if(confirm("Clear all data?")) { localStorage.clear(); location.reload(); }
+        }
+
+        // --- PARSING ---
         function handleFile(input) {
             const file = input.files[0];
             if(!file) return;
             document.getElementById('loader').style.display = 'flex';
             
-            const type = file.name.split('.').pop().toLowerCase();
-            if(type === 'pdf') parsePDF(file);
-            else if(['xlsx','xls'].includes(type)) parseExcel(file);
-            else { alert("Invalid file type."); document.getElementById('loader').style.display = 'none'; }
+            const ext = file.name.split('.').pop().toLowerCase();
+            if(ext === 'pdf') parsePDF(file);
+            else if(ext.includes('xls')) parseExcel(file);
+            else { alert("Invalid file"); document.getElementById('loader').style.display = 'none'; }
         }
 
-        // --- PARSERS ---
         async function parsePDF(file) {
             try {
                 const buffer = await file.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument(buffer).promise;
-                let text = "";
-                for(let i=1; i<=pdf.numPages; i++) {
+                let fullText = "";
+
+                // Try Text Extraction first
+                for(let i=1; i<=Math.min(pdf.numPages, 3); i++) {
                     const page = await pdf.getPage(i);
-                    const tc = await page.getTextContent();
-                    text += tc.items.map(s=>s.str).join(" ") + " ";
-                }
-                
-                // Extract Metadata
-                const nameM = text.match(/(?:Name|Student)\s*[:\-]?\s*([A-Za-z\s\.]+)/i);
-                if(nameM) appData.profile.name = nameM[1].trim().substring(0, 25);
-                
-                const rollM = text.match(/[0-9]{4,}[A-Z0-9]+/); 
-                if(rollM) appData.profile.roll = rollM[0];
-
-                // Extract Table: Code Name AH TH
-                const regex = /([A-Z0-9]{4,10})\s+(.+?)\s+(\d+)\s+(\d+)/g;
-                let match, found={};
-                while((match = regex.exec(text)) !== null) {
-                    const code = match[1];
-                    let name = match[2].trim().replace(/[^a-zA-Z0-9\s\-\(\)]/g, '');
-                    const n1 = parseInt(match[3]), n2 = parseInt(match[4]);
-                    if(name.length > 3) found[code] = { name: name, ah: Math.min(n1,n2), th: Math.max(n1,n2) };
+                    const txt = await page.getTextContent();
+                    fullText += txt.items.map(s => s.str).join(" ") + " ";
                 }
 
-                if(Object.keys(found).length === 0) throw new Error("No data found");
-                finalize(found);
-            } catch(e) { console.error(e); alert("PDF Error. Try Excel."); document.getElementById('loader').style.display='none'; }
+                // If text is sparse, use OCR
+                if(fullText.length < 50) {
+                    document.getElementById('loader-text').innerText = "Scanning Image (OCR)...";
+                    fullText = await performOCR(pdf);
+                }
+
+                processText(fullText);
+
+            } catch(e) { console.error(e); alert("PDF Error"); document.getElementById('loader').style.display='none'; }
+        }
+
+        async function performOCR(pdf) {
+            // Render Page 1 to canvas for Tesseract
+            const page = await pdf.getPage(1);
+            const viewport = page.getViewport({ scale: 2.0 });
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+            
+            const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
+            return text;
         }
 
         function parseExcel(file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                try {
-                    const wb = XLSX.read(e.target.result, {type:'array'});
-                    const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1});
-                    
-                    // Find header row
-                    let hRow = -1;
-                    for(let i=0; i<Math.min(json.length,20); i++) {
-                        const s = JSON.stringify(json[i]).toLowerCase();
-                        if(s.includes('code') || s.includes('subject')) { hRow=i; break; }
-                    }
-                    if(hRow===-1) throw new Error("No headers");
-
-                    // Get Indices
-                    const rowH = json[hRow].map(x=>String(x).toLowerCase());
-                    const iCode = rowH.findIndex(h=>h.includes('code'));
-                    const iAh = rowH.findIndex(h=>h.includes('attend') || h.includes('present'));
-                    const iTh = rowH.findIndex(h=>h.includes('total') || h.includes('conduct'));
-                    
-                    if(iCode<0 || iAh<0 || iTh<0) throw new Error("Columns missing");
-
-                    let found={};
-                    for(let i=hRow+1; i<json.length; i++) {
-                        const r = json[i];
-                        if(r && r[iCode]) {
-                            const code = String(r[iCode]).trim();
-                            const ah = parseInt(r[iAh])||0, th = parseInt(r[iTh])||0;
-                            if(th>0) found[code] = { name: "Course "+code, ah, th }; // Simplified name if not found
-                        }
-                    }
-                    finalize(found);
-                } catch(e) { console.error(e); alert("Excel Error."); document.getElementById('loader').style.display='none'; }
+                const wb = XLSX.read(e.target.result, {type:'array'});
+                const sheet = wb.Sheets[wb.SheetNames[0]];
+                const text = XLSX.utils.sheet_to_csv(sheet);
+                processText(text);
             };
             reader.readAsArrayBuffer(file);
         }
 
-        function finalize(courses) {
-            appData.courses = courses;
-            localStorage.setItem('ac_data_v1', JSON.stringify(appData));
+        function processText(text) {
+            // 1. College Name (Regex look for keywords near top)
+            // Look for first line with College/University
+            const collegeMatch = text.match(/(?:University|College|Institute|Academy|School|Campus) [a-zA-Z\s\&]+/i);
+            if(collegeMatch) appData.profile.college = collegeMatch[0].trim();
+
+            // 2. Name & Roll
+            const nameMatch = text.match(/(?:Name|Student)\s*[:\-]?\s*([A-Za-z\s\.]+)/i);
+            if(nameMatch) appData.profile.name = nameMatch[1].trim().substring(0, 20);
+            
+            const rollMatch = text.match(/[0-9]{5,}[A-Z0-9]*/);
+            if(rollMatch) appData.profile.roll = rollMatch[0];
+
+            // 3. Table Data (Code Name AH TH)
+            // Matches: [Code] [Name] [Num] [Num]
+            const regex = /([A-Z0-9]{4,10})\s+(.+?)\s+(\d+)\s+(\d+)/g;
+            let match, found = {};
+
+            while ((match = regex.exec(text)) !== null) {
+                const code = match[1];
+                let name = match[2].trim().replace(/[^a-zA-Z0-9\s]/g, '');
+                if(name.length > 25) name = name.substring(0,25)+"...";
+                
+                const n1 = parseInt(match[3]);
+                const n2 = parseInt(match[4]);
+                const th = Math.max(n1, n2);
+                const ah = Math.min(n1, n2);
+
+                if (th > 0 && name.length > 3) {
+                    found[code] = { name, ah, th };
+                }
+            }
+
+            if(Object.keys(found).length > 0) {
+                appData.courses = found;
+                save();
+                showApp();
+            } else {
+                alert("Could not extract data. Ensure table format is readable.");
+            }
             document.getElementById('loader').style.display = 'none';
-            showApp();
         }
 
-        // --- CORE LOGIC ---
-        function updateStats(code, isPresent) {
+        function save() {
+            localStorage.setItem('ocr_data_v1', JSON.stringify(appData));
+        }
+
+        // --- CORE FUNCTIONS ---
+        function logAttendance(code, isPresent) {
+            // Update Stats
             appData.courses[code].th++;
             if(isPresent) appData.courses[code].ah++;
-            localStorage.setItem('ac_data_v1', JSON.stringify(appData));
+            
+            // Log History
+            appData.history.unshift({
+                date: new Date().getTime(),
+                code: code,
+                status: isPresent ? 'Present' : 'Absent',
+                name: appData.courses[code].name
+            });
+            
+            save();
             renderUI();
         }
 
+        // --- RENDER ---
         function renderUI() {
-            // Header
+            document.getElementById('disp-college').innerText = appData.profile.college || "COLLEGE NOT DETECTED";
             document.getElementById('disp-name').innerText = appData.profile.name;
-            document.getElementById('disp-meta').innerText = appData.profile.roll;
+            document.getElementById('disp-roll').innerText = appData.profile.roll;
 
-            // Deadline
-            const now = new Date(), currentYear = now.getFullYear();
-            let target = new Date(`${currentYear}-05-06`);
-            if(now > target) target.setFullYear(currentYear+1);
-            const days = Math.ceil((target-now)/(1000*60*60*24));
-            document.getElementById('disp-deadline').innerText = `Target: May 6 (${days} Days Left)`;
+            let tAh=0, tTh=0;
+            Object.values(appData.courses).forEach(c => { tAh+=c.ah; tTh+=c.th; });
+            document.getElementById('disp-global').innerText = tTh===0 ? "0%" : ((tAh/tTh)*100).toFixed(0)+"%";
 
-            // Content
             const container = document.getElementById('content-area');
             container.innerHTML = "";
 
-            // Global Pct
-            let tAh=0, tTh=0;
-            const sorted = Object.entries(appData.courses).sort(([,a],[,b]) => (a.ah/a.th)-(b.ah/b.th));
+            if(currentTab === 'consolidated') {
+                renderConsolidated(container);
+            } else {
+                renderCards(container, currentTab === 'log');
+            }
+        }
 
-            sorted.forEach(([code, c]) => {
-                tAh += c.ah; tTh += c.th;
-                const pct = (c.ah/c.th)*100;
-                const isSafe = pct >= 75;
+        function renderConsolidated(container) {
+            container.innerHTML = `
+                <div class="filter-row">
+                    <button class="filter-chip ${viewFilter==='daily'?'active':''}" onclick="setFilter('daily')">Daily</button>
+                    <button class="filter-chip ${viewFilter==='weekly'?'active':''}" onclick="setFilter('weekly')">Weekly</button>
+                    <button class="filter-chip ${viewFilter==='monthly'?'active':''}" onclick="setFilter('monthly')">Monthly</button>
+                </div>
+            `;
 
-                // Insight Logic
-                let tag = "";
-                if(isSafe) {
-                    const bunk = Math.floor((c.ah - 0.75*c.th)/0.75);
-                    tag = `<span class="rec-tag rec-safe">Bunk: ${bunk}</span>`;
-                } else {
-                    const need = Math.ceil((0.75*c.th - c.ah)/0.25);
-                    tag = `<span class="rec-tag rec-danger">Attend: ${need}</span>`;
+            if(appData.history.length === 0) {
+                container.innerHTML += `<div style="text-align:center; color:var(--text-sub); margin-top:40px;">No logs recorded yet.<br>Go to Action tab to log attendance.</div>`;
+                return;
+            }
+
+            // Grouping Logic
+            let groups = {};
+            appData.history.forEach(log => {
+                const date = new Date(log.date);
+                let key = "";
+                if(viewFilter === 'daily') key = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+                if(viewFilter === 'weekly') {
+                     // Simple week key: Year-WeekNum
+                     const firstDay = new Date(date.getFullYear(), 0, 1);
+                     const pastDays = (date - firstDay) / 86400000;
+                     const weekNum = Math.ceil((pastDays + firstDay.getDay() + 1) / 7);
+                     key = `Week ${weekNum}, ${date.getFullYear()}`;
                 }
+                if(viewFilter === 'monthly') key = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-                // Conditional UI based on Tab
-                let footerHtml = "";
-                if(currentTab === 'insights') {
-                    footerHtml = `
-                        <div class="c-footer">
-                            <span class="c-stat">${c.ah}/${c.th} Sessions</span>
-                            ${tag}
+                if(!groups[key]) groups[key] = [];
+                groups[key].push(log);
+            });
+
+            Object.keys(groups).forEach(key => {
+                let html = `<div class="log-group"><div class="log-date">${key}</div><div class="card" style="padding:0; overflow:hidden;">`;
+                groups[key].forEach(log => {
+                    html += `
+                        <div class="log-item">
+                            <div>
+                                <div style="font-weight:700; font-size:0.9rem;">${log.code}</div>
+                                <div style="font-size:0.75rem; color:var(--text-sub);">${log.name}</div>
+                            </div>
+                            <div class="log-status ${log.status==='Present'?'s-p':'s-a'}">${log.status}</div>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+                container.innerHTML += html;
+            });
+        }
+
+        function renderCards(container, isAction) {
+            const sorted = Object.entries(appData.courses).sort(([,a],[,b]) => (a.ah/a.th)-(b.ah/b.th));
+            
+            sorted.forEach(([code, c]) => {
+                const pct = (c.ah/c.th)*100;
+                const safe = pct >= 75;
+                
+                let footer = "";
+                if(isAction) {
+                    footer = `
+                        <div class="action-row">
+                            <button class="act-btn btn act-p" onclick="logAttendance('${code}', true)">Present</button>
+                            <button class="act-btn btn act-a" onclick="logAttendance('${code}', false)">Absent</button>
                         </div>
                     `;
                 } else {
-                    footerHtml = `
-                        <div class="action-row">
-                            <button class="act-btn btn act-p" onclick="updateStats('${code}', true)">Present</button>
-                            <button class="act-btn btn act-a" onclick="updateStats('${code}', false)">Absent</button>
-                        </div>
-                    `;
+                    // Insights
+                    let rec = safe 
+                        ? `<span style="color:var(--success); font-weight:700; font-size:0.8rem;">Safe: Can bunk ${Math.floor((c.ah-0.75*c.th)/0.75)}</span>`
+                        : `<span style="color:var(--danger); font-weight:700; font-size:0.8rem;">Risk: Attend ${Math.ceil((0.75*c.th-c.ah)/0.25)}</span>`;
+                    footer = `<div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.8rem; color:var(--text-sub);">${c.ah}/${c.th} Classes</span>${rec}</div>`;
                 }
 
                 container.innerHTML += `
                     <div class="card">
-                        <div class="card-header">
+                        <div class="c-header">
                             <span class="c-code">${code}</span>
-                            <span class="c-pct" style="color:${isSafe?'var(--success)':'var(--danger)'}">${pct.toFixed(0)}%</span>
+                            <span class="c-pct" style="color:${safe?'var(--success)':'var(--danger)'}">${pct.toFixed(0)}%</span>
                         </div>
                         <div class="c-name">${c.name}</div>
                         <div class="progress-track">
-                            <div class="progress-fill" style="width:${Math.min(pct,100)}%; background:${isSafe?'var(--success)':'var(--danger)'}"></div>
+                            <div class="progress-fill" style="width:${Math.min(pct,100)}%; background:${safe?'var(--success)':'var(--danger)'}"></div>
                         </div>
-                        ${footerHtml}
+                        ${footer}
                     </div>
                 `;
             });
-
-            // Update Global Badge
-            const gPct = tTh===0?0:(tAh/tTh)*100;
-            const gEl = document.getElementById('disp-global');
-            gEl.innerText = gPct.toFixed(1) + "%";
-            gEl.style.background = gPct >= 75 ? "var(--text-main)" : "var(--danger)";
-
-            // Add Reset Link
-            container.innerHTML += `<div class="reset-link" onclick="hardReset()">Reset Data</div>`;
+            container.innerHTML += `<div style="text-align:center; padding:20px; color:var(--danger); text-decoration:underline; font-size:0.8rem;" onclick="reset()">Reset Data</div>`;
         }
     </script>
 </body>
