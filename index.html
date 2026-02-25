@@ -7,14 +7,18 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#ffffff">
     <title>Command | Aditya C.</title>
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+
     <style>
         :root {
             --bg: #ffffff;
             --card: #f8f8f8;
             --card-shadow: 0 4px 20px rgba(0,0,0,0.05);
             --border: #e5e5ea;
-            --accent: #FF6B00; /* Vibrant Orange */
+            --accent: #FF6B00;
             --accent-dim: rgba(255, 107, 0, 0.1);
             --danger: #ff3b30;
             --success: #34c759;
@@ -39,78 +43,57 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid transparent;
         }
 
         .user-info h1 { margin: 0; font-size: 1.6rem; color: var(--text-main); letter-spacing: -0.5px; font-weight: 800; }
         .user-info p { margin: 4px 0 0; font-size: 0.9rem; color: var(--text-sub); font-family: monospace; letter-spacing: 0.5px; font-weight: 500; }
         
         .global-badge {
-            background: var(--text-main);
-            color: var(--bg);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-weight: 800;
-            font-size: 0.95rem;
+            background: var(--text-main); color: var(--bg); border: none;
+            padding: 8px 16px; border-radius: 30px; font-weight: 800; font-size: 0.95rem;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
+        /* --- UPLOAD SECTION --- */
+        .upload-card {
+            margin: 0 24px 20px;
+            padding: 20px;
+            background: #fff0e6;
+            border: 1px dashed var(--accent);
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .upload-card:active { opacity: 0.7; }
+        .upload-text { color: var(--accent); font-weight: 700; font-size: 0.9rem; }
+        #file-input { display: none; }
+
         /* --- LIVE WIDGET --- */
         .live-container { padding: 10px 24px 30px; }
-        .live-label { 
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; 
-            color: var(--accent); margin-bottom: 15px; font-weight: 800; 
-            display: flex; align-items: center; gap: 10px; 
-        }
-        
-        .pulsate { 
-            width: 8px; height: 8px; background: var(--accent); border-radius: 50%; 
-            animation: pulse 2s infinite; 
-        }
-        @keyframes pulse { 
-            0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); } 
-            70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); } 
-            100% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0); } 
-        }
+        .live-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); margin-bottom: 15px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .pulsate { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0); } }
 
         .active-card {
-            background: #ffffff; 
-            border: 2px solid var(--border); 
-            border-radius: 24px; padding: 35px 25px; text-align: center;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            cursor: pointer; position: relative; overflow: hidden;
+            background: #ffffff; border: 2px solid var(--border); border-radius: 24px; padding: 35px 25px; text-align: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; position: relative; overflow: hidden;
             box-shadow: var(--card-shadow);
         }
         .active-card:active { transform: scale(0.96); }
-        
         .course-code { font-size: 2.5rem; font-weight: 900; margin-bottom: 5px; display: block; color: var(--text-main); letter-spacing: -1px; }
         .course-name { font-size: 1rem; color: var(--text-sub); margin-bottom: 25px; display: block; font-weight: 600; }
-        
-        .status-indicator { 
-            font-size: 0.8rem; font-weight: bold; padding: 10px 24px; 
-            border-radius: 30px; background: var(--card); color: var(--text-main);
-            display: inline-flex; align-items: center; gap: 8px; 
-            text-transform: uppercase; letter-spacing: 1px; 
-            border: 1px solid var(--border);
-        }
+        .status-indicator { font-size: 0.8rem; font-weight: bold; padding: 10px 24px; border-radius: 30px; background: var(--card); color: var(--text-main); display: inline-flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 1px; border: 1px solid var(--border); }
 
-        /* STATES */
         .active-card.state-present { background: var(--success); border-color: var(--success); color: white; box-shadow: 0 10px 30px rgba(52, 199, 89, 0.4); }
         .active-card.state-present .course-code, .active-card.state-present .course-name, .active-card.state-present .status-indicator { color: white; }
         .active-card.state-present .status-indicator { background: rgba(255,255,255,0.2); border-color: transparent; }
-
         .active-card.state-absent { background: var(--danger); border-color: var(--danger); color: white; box-shadow: 0 10px 30px rgba(255, 59, 48, 0.4); }
         .active-card.state-absent .course-code, .active-card.state-absent .course-name, .active-card.state-absent .status-indicator { color: white; }
         .active-card.state-absent .status-indicator { background: rgba(255,255,255,0.2); border-color: transparent; }
 
         /* --- MENU --- */
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 24px; }
-        .menu-item { 
-            background: #ffffff; border: 1px solid var(--border); 
-            padding: 24px; border-radius: 20px; text-align: center; 
-            transition: transform 0.2s; box-shadow: var(--card-shadow);
-        }
+        .menu-item { background: #ffffff; border: 1px solid var(--border); padding: 24px; border-radius: 20px; text-align: center; transition: transform 0.2s; box-shadow: var(--card-shadow); }
         .menu-item:active { transform: scale(0.98); background: var(--card); }
         .menu-item i { font-size: 1.6rem; margin-bottom: 12px; display: block; color: var(--accent); }
         .menu-item span { font-size: 0.9rem; font-weight: 700; color: var(--text-main); }
@@ -120,64 +103,66 @@
         .section-view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .back-nav { 
-            padding: 10px 0 20px; font-weight: 800; color: var(--text-main); 
-            cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 1rem; 
-        }
+        .back-nav { padding: 10px 0 20px; font-weight: 800; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 1rem; }
         .back-nav i { color: var(--accent); }
 
-        /* --- INSIGHT CARDS --- */
-        .insight-card {
-            background: #ffffff; border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px;
-            box-shadow: var(--card-shadow);
-        }
+        /* --- STATS & LISTS --- */
+        .insight-card, .list-card { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
+        .insight-card { padding: 20px; border-radius: 20px; margin-bottom: 15px; }
+        
         .insight-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .insight-title { font-weight: 800; font-size: 1.1rem; color: var(--text-main); }
         .insight-pct { font-weight: 900; font-size: 1.2rem; }
-        
         .progress-track { width: 100%; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
         .progress-fill { height: 100%; border-radius: 4px; }
         
-        .insight-footer {
-            background: #fafafa; padding: 12px; border-radius: 12px; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;
-        }
+        .insight-footer { background: #fafafa; padding: 12px; border-radius: 12px; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; }
         .rec-badge { padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;}
         .rec-danger { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
         .rec-safe { background: rgba(52, 199, 89, 0.1); color: var(--success); }
 
-        /* --- LIST ITEMS --- */
-        .list-card {
-            background: #ffffff; border: 1px solid var(--border);
-            padding: 16px 20px; border-radius: 16px; margin-bottom: 12px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: var(--card-shadow);
-        }
-        
-        /* --- TIMETABLE MINI BUTTONS --- */
         .btn-group-mini { display: flex; gap: 8px; }
         .btn-mini { width: 32px; height: 32px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; cursor: pointer; }
         .btn-mini-p { background: rgba(52, 199, 89, 0.1); color: var(--success); }
         .btn-mini-a { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
 
-        /* --- RESET --- */
         .reset-zone { text-align: center; margin-top: 50px; padding-bottom: 50px; }
         .btn-reset { background: transparent; border: 2px solid var(--danger); color: var(--danger); padding: 14px 28px; border-radius: 12px; font-weight: 800; font-size: 0.9rem; width: 100%; }
-        
-        /* DEADLINE */
         #days-left { background: var(--accent); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; }
+
+        /* Loader Overlay */
+        #loader {
+            position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9);
+            z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            display: none;
+        }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
     </style>
 </head>
 <body>
 
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top:20px; font-weight:bold; color:var(--text-main)">Analyzing PDF...</p>
+    </div>
+
     <div id="view-home" class="section-view active">
         <div class="app-header">
             <div class="user-info">
-                <h1>Aditya Chalawadi</h1>
-                <p>20221CBD0001</p>
+                <h1 id="user-name">Aditya Chalawadi</h1>
+                <p id="user-roll">20221CBD0001</p>
             </div>
             <button class="global-badge" id="global-pct">--%</button>
         </div>
+
+        <label for="file-input" class="upload-card">
+            <i class="fas fa-file-pdf" style="font-size: 1.5rem; color: var(--accent); margin-bottom: 8px;"></i>
+            <div class="upload-text">Import Attendance PDF</div>
+            <div style="font-size:0.7rem; color:var(--text-sub); margin-top:4px;">Auto-extracts Courses & Stats</div>
+        </label>
+        <input type="file" id="file-input" accept="application/pdf" onchange="handleFileUpload(this)">
 
         <div class="live-container">
             <div class="live-label">
@@ -212,7 +197,6 @@
             <i class="fas fa-arrow-left"></i> Home
         </div>
         <h2 style="margin: 0 0 10px 0; font-size: 1.8rem; color:var(--text-main);">Log Classes</h2>
-        <p style="margin: 0 0 25px 0; font-size: 0.9rem; color: var(--text-sub);">Manual entry for missed classes.</p>
         <div id="full-schedule-list"></div>
     </div>
 
@@ -227,17 +211,15 @@
                 <span id="days-left">-- Days</span>
             </div>
         </div>
-
         <div id="stats-list"></div>
-        
         <div class="reset-zone">
             <button class="btn-reset" onclick="factoryReset()">Factory Reset Data</button>
         </div>
     </div>
 
     <script>
-        // --- DATA ---
-        const COURSES = {
+        // --- DEFAULT DATA (Fallback) ---
+        const DEFAULT_COURSES = {
             "APT4026": { name: "Aptitude", ah: 8, th: 14 },
             "CAI2500": { name: "Machine Learning (T)", ah: 4, th: 18 },
             "CAI2501": { name: "Machine Learning (L)", ah: 15, th: 25 },
@@ -259,21 +241,109 @@
             "Friday": ["CBD2511", "CBD2511", "CSE2259", "CSE2259", "CSE2259", "CSE2259", "CSE2258"]
         };
 
-        // Standard slots. Index 4 is the post-lunch slot (approx 1:30 PM)
         const TIME_SLOTS = [
             { start: "08:00", end: "09:20", index: 0 },
             { start: "09:20", end: "10:10", index: 1 },
             { start: "10:20", end: "11:10", index: 2 },
             { start: "11:10", end: "12:00", index: 3 },
-            { start: "13:30", end: "14:20", index: 4 }, // 1:40 PM falls here
+            { start: "13:30", end: "14:20", index: 4 }, 
             { start: "14:20", end: "15:10", index: 5 },
             { start: "15:10", end: "16:00", index: 6 }
         ];
 
-        let userData = JSON.parse(localStorage.getItem('aditya_db_light')) || COURSES;
+        // --- STATE ---
+        let userData = JSON.parse(localStorage.getItem('aditya_db_light')) || DEFAULT_COURSES;
         let sessionState = JSON.parse(localStorage.getItem('aditya_session_light')) || {};
+        let userProfile = JSON.parse(localStorage.getItem('aditya_profile')) || { name: "Aditya Chalawadi", roll: "20221CBD0001" };
 
-        // --- LOGIC ---
+        // --- PDF EXTRACTION LOGIC ---
+        async function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            document.getElementById('loader').style.display = 'flex';
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                let fullText = "";
+
+                // Extract text from all pages
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const textItems = textContent.items.map(item => item.str);
+                    fullText += textItems.join(" ") + " ";
+                }
+
+                console.log("Extracted Text:", fullText); // Debugging
+
+                // 1. Extract Roll Number (Look for pattern 2022...)
+                const rollMatch = fullText.match(/2022[A-Za-z0-9]+/);
+                if (rollMatch) userProfile.roll = rollMatch[0];
+
+                // 2. Extract Name (Heuristic: Look for "Name" keyword)
+                const nameMatch = fullText.match(/Name\s*[:\-]?\s*([A-Za-z\s]+)/i);
+                if (nameMatch && nameMatch[1]) {
+                    let rawName = nameMatch[1].trim();
+                    // Clean up if it grabbed too much
+                    if (rawName.split(" ").length > 4) rawName = rawName.split(" ").slice(0,3).join(" "); 
+                    userProfile.name = rawName;
+                }
+
+                // 3. Extract Courses & Stats
+                // Pattern: [3 Letters][4 Digits] -> (Grab text) -> [Number] -> [Number]
+                // Regex: ([A-Z]{3}\d{4})\s+(.*?)\s+(\d+)\s+(\d+)
+                // This assumes data order is Code -> Name -> Conducted/Attended (or vice versa)
+                const courseRegex = /([A-Z]{3}\d{4})\s+(.*?)\s+(\d+)\s+(\d+)/g;
+                let match;
+                let newCourses = {};
+                let foundAny = false;
+
+                while ((match = courseRegex.exec(fullText)) !== null) {
+                    foundAny = true;
+                    const code = match[1];
+                    let name = match[2].trim();
+                    
+                    // Clean name (remove junk dates/times if stuck in there)
+                    name = name.replace(/\d{2}\/\d{2}.*/, '').trim(); 
+                    if(name.length > 25) name = name.substring(0, 25) + "...";
+
+                    const num1 = parseInt(match[3]);
+                    const num2 = parseInt(match[4]);
+                    
+                    // Logic: Total is always >= Attended
+                    const th = Math.max(num1, num2);
+                    const ah = Math.min(num1, num2);
+
+                    newCourses[code] = { name: name, ah: ah, th: th };
+                }
+
+                if (foundAny) {
+                    userData = newCourses;
+                    save();
+                    alert(`Success! Updated ${Object.keys(newCourses).length} courses.\nName: ${userProfile.name}\nRoll: ${userProfile.roll}`);
+                } else {
+                    alert("Could not automatically detect course table format. Please ensure PDF is text-readable.");
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Error reading PDF. Make sure it is a standard text PDF.");
+            } finally {
+                document.getElementById('loader').style.display = 'none';
+                renderAll(); // Refresh UI
+            }
+        }
+
+        // --- CORE FUNCTIONS ---
+        function save() {
+            localStorage.setItem('aditya_db_light', JSON.stringify(userData));
+            localStorage.setItem('aditya_session_light', JSON.stringify(sessionState));
+            localStorage.setItem('aditya_profile', JSON.stringify(userProfile));
+            updateGlobal();
+        }
+
         function updateDaysLeft() {
             const now = new Date();
             const currentYear = now.getFullYear();
@@ -282,12 +352,6 @@
             const diffTime = Math.abs(target - now);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             document.getElementById('days-left').innerText = diffDays + " Days Left";
-        }
-
-        function save() {
-            localStorage.setItem('aditya_db_light', JSON.stringify(userData));
-            localStorage.setItem('aditya_session_light', JSON.stringify(sessionState));
-            updateGlobal();
         }
 
         function getDayName() { return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()]; }
@@ -303,6 +367,18 @@
         }
 
         // --- RENDERERS ---
+        function renderAll() {
+            // Update Header
+            document.getElementById('user-name').innerText = userProfile.name;
+            document.getElementById('user-roll').innerText = userProfile.roll;
+            
+            updateLiveCard();
+            updateGlobal();
+            renderStats();
+            renderTimetable();
+            updateDaysLeft();
+        }
+
         function updateLiveCard() {
             const day = getDayName();
             const slotIdx = getCurrentSlotIndex();
@@ -313,7 +389,8 @@
 
             if (SCHEDULE[day] && slotIdx !== -1 && slotIdx < SCHEDULE[day].length) {
                 const code = SCHEDULE[day][slotIdx];
-                if (code) {
+                // Only show if code exists in userData (imported courses)
+                if (code && userData[code]) {
                     const uniqueKey = `${day}-${slotIdx}`;
                     const cur = sessionState[uniqueKey] || 0;
                     const name = userData[code].name;
@@ -342,13 +419,13 @@
             if (next === 1) { userData[code].ah++; userData[code].th++; }
             if (next === 2) { userData[code].th++; }
             sessionState[key] = next;
-            save(); updateLiveCard(); renderStats();
+            save(); renderAll();
         }
 
         function manualLog(code, isPresent) {
             userData[code].th++;
             if (isPresent) userData[code].ah++;
-            save(); renderStats(); updateGlobal();
+            save(); renderAll();
         }
 
         function updateGlobal() {
@@ -366,7 +443,7 @@
             const sorted = Object.entries(userData).sort(([,a], [,b]) => (a.ah/a.th) - (b.ah/b.th));
             
             sorted.forEach(([code, data]) => {
-                const pct = (data.ah / data.th) * 100;
+                const pct = data.th === 0 ? 0 : (data.ah / data.th) * 100;
                 const isSafe = pct >= 75;
                 
                 let insightHtml = "";
@@ -432,8 +509,10 @@
             if(confirm("Confirm Reset?")) { localStorage.clear(); location.reload(); }
         }
 
+        // --- INIT ---
         setInterval(updateLiveCard, 15000);
-        updateLiveCard(); updateGlobal(); renderStats(); renderTimetable(); updateDaysLeft();
+        renderAll();
+
     </script>
 </body>
 </html>
