@@ -1,274 +1,353 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Ops | Command v7.0</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Command v7.0 Mobile</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg: #0d1117;
+            --bg: #090c10;
             --card: #161b22;
             --border: #30363d;
-            --accent: #58a6ff;
+            --accent: #2f81f7;
             --danger: #f85149;
-            --success: #3fb950;
+            --success: #2ea043;
             --warning: #d29922;
-            --text: #c9d1d9;
-            --holiday: #8b949e;
+            --text-main: #f0f6fc;
+            --text-sub: #8b949e;
+            --glass: rgba(22, 27, 34, 0.95);
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
             margin: 0;
             background: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', sans-serif;
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow-x: hidden;
+            padding-bottom: 80px; /* Space for bottom nav/buttons */
         }
 
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            opacity: 0.3;
+        /* --- Header & Profile --- */
+        .app-header {
+            padding: 20px 20px 10px 20px;
+            background: linear-gradient(180deg, rgba(22,27,34,1) 0%, rgba(9,12,16,0) 100%);
         }
 
-        .container {
-            max-width: 1400px;
-            margin: auto;
-            padding: 20px;
-        }
-
-        .stats-header {
+        .profile-card {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            background: rgba(22, 27, 34, 0.9);
-            padding: 30px;
-            border-radius: 16px;
-            margin-bottom: 30px;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(15px);
-        }
-
-        .total-pct {
-            font-size: 4rem;
-            font-weight: 900;
-            line-height: 1;
-        }
-
-        /* Timetable UI */
-        .timetable-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
-            margin-bottom: 50px;
-            overflow-x: auto;
-        }
-
-        .day-col {
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 10px;
-            padding: 10px;
-            min-width: 180px;
-        }
-
-        .day-name {
-            text-align: center;
-            padding: 10px;
-            color: var(--accent);
-            font-weight: 800;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 15px;
-        }
-
-        .class-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-            font-size: 0.85rem;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-        }
-
-        .btn {
-            flex: 1;
-            border: none;
-            padding: 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.7rem;
-            color: white;
-        }
-
-        .btn-p {
-            background: var(--success);
-        }
-
-        .btn-a {
-            background: var(--danger);
-        }
-
-        /* Holiday & Sat Styles */
-        .holiday-list {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 15px;
             margin-bottom: 20px;
         }
 
-        .h-badge {
-            background: #30363d;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.75rem;
-            border: 1px solid var(--holiday);
+        .avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            box-shadow: 0 0 15px rgba(47, 129, 247, 0.4);
         }
 
-        .sat-selector {
-            margin-bottom: 15px;
+        .user-info h2 { margin: 0; font-size: 1.1rem; }
+        .user-info p { margin: 2px 0 0; font-size: 0.8rem; color: var(--text-sub); font-family: monospace; }
+
+        /* --- Global Stats Circle --- */
+        .dashboard-hero {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .pct-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 8px solid var(--card);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            position: relative;
+            background: radial-gradient(circle, #1c2128 0%, #0d1117 100%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .pct-label { font-size: 0.7rem; color: var(--text-sub); font-weight: normal; margin-top: -5px; }
+
+        /* --- Navigation Grid --- */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 0 20px;
+            margin-top: 20px;
+        }
+
+        .menu-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.1s, border-color 0.2s;
+        }
+
+        .menu-card:active { transform: scale(0.96); }
+        .menu-card i { font-size: 1.5rem; margin-bottom: 10px; display: block; }
+        .menu-card span { font-size: 0.9rem; font-weight: 600; }
+
+        /* --- Sections (Hidden by default) --- */
+        .view-section {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Timetable List --- */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .day-header {
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .class-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .class-info h3 { margin: 0; font-size: 1rem; }
+        .class-info p { margin: 4px 0 0; font-size: 0.75rem; color: var(--text-sub); }
+
+        .action-group { display: flex; gap: 8px; }
+
+        .btn-check {
+            width: 40px; height: 40px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-p { background: rgba(46, 160, 67, 0.15); color: var(--success); border: 1px solid rgba(46, 160, 67, 0.3); }
+        .btn-p:active { background: var(--success); color: white; }
+        
+        .btn-a { background: rgba(248, 81, 73, 0.15); color: var(--danger); border: 1px solid rgba(248, 81, 73, 0.3); }
+        .btn-a:active { background: var(--danger); color: white; }
+
+        /* --- Analytics List --- */
+        .stat-row {
             background: var(--card);
             padding: 15px;
-            border-radius: 8px;
-            border: 1px solid var(--accent);
-        }
-
-        select {
-            background: #0d1117;
-            color: white;
-            border: 1px solid var(--border);
-            padding: 8px;
-            border-radius: 4px;
-        }
-
-        .inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .course-stat-card {
-            background: var(--card);
-            padding: 20px;
             border-radius: 12px;
+            margin-bottom: 12px;
             border: 1px solid var(--border);
         }
 
-        .badge-row {
+        .stat-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .stat-bar-bg { height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; }
+        .stat-bar-fill { height: 100%; transition: width 0.5s; }
+        
+        .badge-container { display: flex; gap: 10px; margin-top: 10px; }
+        .badge { 
+            font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; 
+            background: rgba(139, 148, 158, 0.1); color: var(--text-sub); 
+        }
+        .b-warn { color: var(--warning); border: 1px solid rgba(210, 153, 34, 0.3); }
+        .b-safe { color: var(--accent); border: 1px solid rgba(88, 166, 255, 0.3); }
+
+        /* --- Save Button --- */
+        .save-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .btn-save {
+            width: 100%;
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            box-shadow: 0 5px 20px rgba(46, 160, 67, 0.4);
             display: flex;
-            gap: 8px;
-            margin-top: 15px;
-        }
-
-        .info-badge {
-            flex: 1;
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .needed-badge {
-            background: rgba(210, 153, 34, 0.1);
-            color: var(--warning);
-            border-color: rgba(210, 153, 34, 0.2);
-        }
-
-        .budget-badge {
-            background: rgba(88, 166, 255, 0.1);
-            color: var(--accent);
-            border-color: rgba(88, 166, 255, 0.2);
-        }
-
-        .progress-container {
-            height: 6px;
-            background: #333;
-            margin: 12px 0;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            transition: width 0.6s ease;
-        }
-
-        .reset-container {
-            text-align: center;
-            margin-top: 50px;
-            padding-bottom: 50px;
-        }
-
-        .btn-reset {
-            background: transparent;
-            color: var(--danger);
-            border: 1px solid var(--danger);
-            padding: 10px 20px;
-            border-radius: 6px;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             cursor: pointer;
-            font-weight: bold;
-            opacity: 0.6;
         }
+        
+        .btn-save:active { transform: scale(0.98); }
 
-        .btn-reset:hover {
-            opacity: 1;
-            background: rgba(248, 81, 73, 0.1);
+        /* --- Settings Inputs --- */
+        select, button.reset-btn {
+            width: 100%;
+            padding: 12px;
+            background: #0d1117;
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1rem;
         }
+        
+        .reset-btn { border-color: var(--danger); color: var(--danger); background: transparent; }
+
     </style>
 </head>
-
 <body>
 
-    <div class="container">
-        <div class="stats-header">
-            <div>
-                <h1 style="margin:0">RECOVERY COMMAND v7.0</h1>
-                <p id="today-info" style="margin:5px 0; color: var(--success);">● Local Sync Active</p>
-                <div class="holiday-list" id="holiday-badges"></div>
-            </div>
-            <div style="text-align: right;">
-                <p style="margin:0; font-size: 0.7rem; opacity: 0.5;">REAL-TIME AVERAGE</p>
-                <div id="global-pct" class="total-pct">--%</div>
+    <div id="view-home" class="view-section active">
+        <div class="app-header">
+            <div class="profile-card">
+                <div class="avatar">V</div>
+                <div class="user-info">
+                    <h2>Vivek / User</h2>
+                    <p>20221cbd0001</p>
+                </div>
             </div>
         </div>
 
-        <div class="sat-selector">
-            <strong>🛠 SATURDAY SWAP:</strong> Follow
-            <select id="sat-day-select" onchange="updateSaturdaySchedule()">
-                <option value="">-- No Class --</option>
-                <option value="Monday">Monday's Timetable</option>
-                <option value="Tuesday">Tuesday's Timetable</option>
-                <option value="Wednesday">Wednesday's Timetable</option>
-                <option value="Thursday">Thursday's Timetable</option>
-                <option value="Friday">Friday's Timetable</option>
-            </select>
+        <div class="dashboard-hero">
+            <div class="pct-circle" id="global-circle" style="border-color: var(--accent)">
+                <span id="home-pct">--%</span>
+                <span class="pct-label">AGGREGATE</span>
+            </div>
+            <div style="margin-top: 15px; font-size: 0.9rem; opacity: 0.7;" id="current-day-display">
+                Wednesday
+            </div>
         </div>
 
-        <div class="timetable-grid" id="timetable"></div>
-
-        <h2
-            style="font-size: 1rem; color: var(--accent); border-left: 4px solid var(--accent); padding-left: 10px; margin-bottom: 20px;">
-            ANALYTICS & BUNK BUDGET</h2>
-        <div class="inventory-grid" id="inventory"></div>
-
-        <div class="reset-container">
-            <button class="btn-reset" onclick="resetData()">Wipe Data & Reset to 48% Stats</button>
+        <div class="menu-grid">
+            <div class="menu-card" onclick="navTo('today')" style="border-color: var(--accent);">
+                <i class="fas fa-calendar-day" style="color: var(--accent)"></i>
+                <span>Log Today</span>
+            </div>
+            <div class="menu-card" onclick="navTo('timetable')">
+                <i class="fas fa-list"></i>
+                <span>Full Week</span>
+            </div>
+            <div class="menu-card" onclick="navTo('analytics')">
+                <i class="fas fa-chart-pie" style="color: var(--warning)"></i>
+                <span>Bunk Calc</span>
+            </div>
+            <div class="menu-card" onclick="navTo('settings')">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+        </div>
+        
+        <div style="padding: 20px;">
+            <div class="day-header">TODAY'S STATUS</div>
+            <div id="today-preview" style="text-align:center; color: var(--text-sub); font-size: 0.9rem;">
+                </div>
         </div>
     </div>
 
+    <div id="view-today" class="view-section">
+        <div class="section-header">
+            <button class="back-btn" onclick="navTo('home')"><i class="fas fa-arrow-left"></i></button>
+            <h2 style="margin:0">Log Attendance</h2>
+        </div>
+        <p style="opacity: 0.6; font-size: 0.9rem; margin-bottom: 20px;">Tap P or B to update instantly.</p>
+        <div id="today-list"></div>
+        <div style="height: 60px;"></div> </div>
+
+    <div id="view-timetable" class="view-section">
+        <div class="section-header">
+            <button class="back-btn" onclick="navTo('home')"><i class="fas fa-arrow-left"></i></button>
+            <h2 style="margin:0">Weekly Schedule</h2>
+        </div>
+        <div id="full-timetable-list"></div>
+    </div>
+
+    <div id="view-analytics" class="view-section">
+        <div class="section-header">
+            <button class="back-btn" onclick="navTo('home')"><i class="fas fa-arrow-left"></i></button>
+            <h2 style="margin:0">Analytics</h2>
+        </div>
+        <div id="inventory-list"></div>
+    </div>
+
+    <div id="view-settings" class="view-section">
+        <div class="section-header">
+            <button class="back-btn" onclick="navTo('home')"><i class="fas fa-arrow-left"></i></button>
+            <h2 style="margin:0">Settings</h2>
+        </div>
+
+        <div style="background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+            <h3 style="margin-top:0; font-size:1rem;">Saturday Schedule</h3>
+            <p style="font-size:0.8rem; color: var(--text-sub);">Select which day Saturday follows:</p>
+            <select id="sat-selector" onchange="updateSatSetting()">
+                <option value="">No Class</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+            </select>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button class="reset-btn" onclick="hardReset()">⚠ Factory Reset Data</button>
+        </div>
+    </div>
+
+    <div class="save-bar" id="save-btn-container" style="display:none">
+        <button class="btn-save" onclick="endOfDaySync()">
+            <i class="fas fa-check-circle"></i> Mark End of Day (4:15 PM)
+        </button>
+    </div>
+
     <script>
-        const INITIAL_DATA = {
+        // --- DATA CONFIGURATION ---
+        const INITIAL_COURSES = {
             "APT4026": { name: "Aptitude", ah: 8, th: 14 },
             "CAI2500": { name: "Machine Learning (T)", ah: 4, th: 18 },
             "CAI2501": { name: "Machine Learning (L)", ah: 15, th: 25 },
@@ -282,12 +361,7 @@
             "LAW7601": { name: "Indian Constitution", ah: 2, th: 4 }
         };
 
-        const holidays = [
-            "Mar 10-14: Mid-terms", "Mar 19: Ugadi", "Mar 21: Ramzan",
-            "Apr 3: Good Friday", "Apr 10-11: INVINCIA", "May 1: May Day"
-        ];
-
-        const schedule = {
+        const BASE_SCHEDULE = {
             "Monday": ["CAI2500", "CBD2510", "CSE2274", "CSE2274", "CSE2258", "CSE3426", "ECE3097"],
             "Tuesday": ["CAI2500", "CSE2258", "CSE3426", "CBD2510", "CAI2500", "ECE3097"],
             "Wednesday": ["CSE2274", "CSE2274", "CAI2501", "CAI2501", "LAW7601", "CSE3426", "CSE3426"],
@@ -296,125 +370,239 @@
             "Saturday": []
         };
 
-        // Load Persistent Data
-        let courses = JSON.parse(localStorage.getItem('attendanceData_v7')) || INITIAL_DATA;
+        const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-        function save() {
-            localStorage.setItem('attendanceData_v7', JSON.stringify(courses));
+        // --- STATE MANAGEMENT ---
+        let courses = JSON.parse(localStorage.getItem('cmd_v7_data')) || INITIAL_COURSES;
+        let satMode = localStorage.getItem('cmd_v7_sat') || "";
+
+        // --- CORE FUNCTIONS ---
+
+        function saveData() {
+            localStorage.setItem('cmd_v7_data', JSON.stringify(courses));
+            localStorage.setItem('cmd_v7_sat', satMode);
+            refreshAll();
         }
 
-        function resetData() {
-            if (confirm("Are you sure? This will reset all your manual logs.")) {
-                courses = JSON.parse(JSON.stringify(INITIAL_DATA));
-                save();
-                refreshUI();
+        function getSchedule(dayName) {
+            if (dayName === "Saturday") {
+                return satMode ? BASE_SCHEDULE[satMode] : [];
+            }
+            return BASE_SCHEDULE[dayName] || [];
+        }
+
+        function updateSatSetting() {
+            satMode = document.getElementById('sat-selector').value;
+            saveData();
+            alert("Saturday schedule updated.");
+        }
+
+        function hardReset() {
+            if(confirm("Confirm Factory Reset? All logs will be lost.")) {
+                courses = JSON.parse(JSON.stringify(INITIAL_COURSES));
+                satMode = "";
+                saveData();
+                location.reload();
             }
         }
 
-        function refreshUI() {
-            renderHolidayBadges();
-            renderTimetable();
-            renderInventory();
-            updateGlobal();
+        function endOfDaySync() {
+            // In a real app, this might push to a server.
+            // Here, we provide visual feedback and ensure local save.
+            saveData();
+            const btn = document.querySelector('.btn-save');
+            const originalHTML = btn.innerHTML;
+            
+            btn.style.background = "#fff";
+            btn.style.color = "#2ea043";
+            btn.innerHTML = `<i class="fas fa-check-double"></i> Synced Successfully`;
+            
+            setTimeout(() => {
+                btn.style.background = "var(--success)";
+                btn.style.color = "white";
+                btn.innerHTML = originalHTML;
+                navTo('home');
+            }, 1500);
         }
 
-        function renderHolidayBadges() {
-            const container = document.getElementById('holiday-badges');
-            container.innerHTML = holidays.map(h => `<div class="h-badge">📅 ${h}</div>`).join('');
+        function logClass(code, present) {
+            courses[code].th++;
+            if (present) courses[code].ah++;
+            saveData();
         }
 
-        function updateSaturdaySchedule() {
-            const selectedDay = document.getElementById('sat-day-select').value;
-            schedule["Saturday"] = selectedDay ? [...schedule[selectedDay]] : [];
-            renderTimetable();
+        // --- RENDERERS ---
+
+        function getTodayName() {
+            const d = new Date();
+            return DAYS[d.getDay()];
         }
 
-        function renderTimetable() {
-            const container = document.getElementById('timetable');
-            container.innerHTML = '';
-            Object.keys(schedule).forEach(day => {
-                const col = document.createElement('div');
-                col.className = 'day-col';
-                col.innerHTML = `<div class="day-name">${day}</div>`;
-                if (schedule[day].length === 0) col.innerHTML += `<div style="text-align:center; opacity:0.3; font-size:0.8rem">No classes</div>`;
-                schedule[day].forEach(code => {
-                    const c = courses[code];
-                    const card = document.createElement('div');
-                    card.className = 'class-card';
-                    card.innerHTML = `
-                        <strong>${code}</strong><br><span style="font-size:0.7rem; opacity:0.6">${c.name}</span>
-                        <div class="btn-group">
-                            <button class="btn btn-p" onclick="log('${code}', true)">P</button>
-                            <button class="btn btn-a" onclick="log('${code}', false)">B</button>
-                        </div>`;
-                    col.appendChild(card);
-                });
-                container.appendChild(col);
-            });
+        function renderGlobalStats() {
+            let totalAh = 0, totalTh = 0;
+            Object.values(courses).forEach(c => { totalAh += c.ah; totalTh += c.th; });
+            const pct = totalTh === 0 ? 0 : (totalAh / totalTh) * 100;
+            
+            const circle = document.getElementById('global-circle');
+            const txt = document.getElementById('home-pct');
+            
+            txt.innerText = pct.toFixed(1) + "%";
+            circle.style.borderColor = pct >= 75 ? 'var(--success)' : 'var(--danger)';
+            circle.style.color = pct >= 75 ? 'var(--success)' : 'var(--danger)';
+            
+            document.getElementById('current-day-display').innerText = getTodayName() + " | Local Sync";
         }
 
-        function renderInventory() {
-            const container = document.getElementById('inventory');
-            container.innerHTML = '';
-            Object.keys(courses).forEach(code => {
+        function renderClassList(day, containerId, interactive = true) {
+            const container = document.getElementById(containerId);
+            const classes = getSchedule(day);
+            container.innerHTML = "";
+
+            if (classes.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:30px; opacity:0.5">No classes scheduled for ${day}.</div>`;
+                return;
+            }
+
+            classes.forEach(code => {
                 const c = courses[code];
-                const pct = (c.ah / c.th);
-                const pctDisplay = (pct * 100).toFixed(1);
-
-                let needed = 0;
-                let budget = 0;
-
-                if (pct < 0.75) {
-                    needed = Math.ceil((0.75 * c.th - c.ah) / 0.25);
+                const div = document.createElement('div');
+                div.className = 'class-item';
+                
+                let buttons = '';
+                if(interactive) {
+                    buttons = `
+                        <div class="action-group">
+                            <button class="btn-check btn-p" onclick="logClass('${code}', true)">P</button>
+                            <button class="btn-check btn-a" onclick="logClass('${code}', false)">B</button>
+                        </div>
+                    `;
                 } else {
-                    budget = Math.floor((c.ah - 0.75 * c.th) / 0.75);
+                    buttons = `<span style="font-size:0.8rem; opacity:0.5">${code}</span>`;
                 }
 
-                const card = document.createElement('div');
-                card.className = 'course-stat-card';
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between"><strong>${code}</strong><span style="color:${pctDisplay < 75 ? 'var(--danger)' : 'var(--success)'}; font-weight:bold;">${pctDisplay}%</span></div>
-                    <div style="font-size:0.75rem; opacity:0.6; margin-top:4px">${c.name}</div>
-                    <div class="progress-container">
-                        <div class="progress-fill" style="width:${Math.min(pctDisplay, 100)}%; background:${pctDisplay < 75 ? 'var(--danger)' : 'var(--success)'}"></div>
+                div.innerHTML = `
+                    <div class="class-info">
+                        <h3>${c.name}</h3>
+                        <p>Current: ${c.ah}/${c.th} (${((c.ah/c.th)*100).toFixed(0)}%)</p>
                     </div>
-                    <div class="badge-row">
-                        <div class="info-badge needed-badge">NEED: ${needed}</div>
-                        <div class="info-badge budget-badge">BUNK: ${budget}</div>
-                    </div>`;
-                container.appendChild(card);
+                    ${buttons}
+                `;
+                container.appendChild(div);
             });
         }
 
-        function updateGlobal() {
-            let tah = 0, tth = 0;
-            Object.values(courses).forEach(c => { tah += c.ah; tth += c.th; });
-            const global = ((tah / tth) * 100).toFixed(2);
-            const disp = document.getElementById('global-pct');
-            disp.innerText = global + "%";
-            disp.style.color = global < 75 ? 'var(--danger)' : 'var(--success)';
-            if (window.mesh) window.mesh.material.color.setHex(global < 75 ? 0xf85149 : 0x3fb950);
+        function renderFullWeek() {
+            const container = document.getElementById('full-timetable-list');
+            container.innerHTML = "";
+            
+            ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = "day-header";
+                dayHeader.style.marginTop = "20px";
+                dayHeader.innerText = day;
+                container.appendChild(dayHeader);
+                
+                const listDiv = document.createElement('div');
+                listDiv.id = `tt-${day}`;
+                container.appendChild(listDiv);
+                
+                renderClassList(day, `tt-${day}`, false);
+            });
         }
 
-        function log(code, present) {
-            courses[code].th++; if (present) courses[code].ah++;
-            save();
-            refreshUI();
+        function renderAnalytics() {
+            const container = document.getElementById('inventory-list');
+            container.innerHTML = "";
+
+            Object.entries(courses).forEach(([code, data]) => {
+                const pct = (data.ah / data.th) * 100;
+                const isSafe = pct >= 75;
+                
+                // Bunk Calc logic
+                let badgeHtml = "";
+                if(isSafe) {
+                    // How many can I bunk?
+                    // (ah) / (th + x) >= 0.75
+                    const possibleBunks = Math.floor((data.ah - 0.75 * data.th) / 0.75);
+                    badgeHtml = `<div class="badge b-safe">Bunk Budget: ${possibleBunks}</div>`;
+                } else {
+                    // How many need to attend?
+                    // (ah + x) / (th + x) >= 0.75
+                    const needed = Math.ceil((0.75 * data.th - data.ah) / 0.25);
+                    badgeHtml = `<div class="badge b-warn">Catch Up: ${needed} Classes</div>`;
+                }
+
+                const div = document.createElement('div');
+                div.className = 'stat-row';
+                div.innerHTML = `
+                    <div class="stat-top">
+                        <span style="font-weight:bold">${data.name}</span>
+                        <span style="font-weight:bold; color: ${isSafe ? 'var(--success)' : 'var(--danger)'}">${pct.toFixed(1)}%</span>
+                    </div>
+                    <div class="stat-bar-bg">
+                        <div class="stat-bar-fill" style="width: ${Math.min(pct, 100)}%; background: ${isSafe ? 'var(--success)' : 'var(--danger)'}"></div>
+                    </div>
+                    <div class="badge-container">
+                        <div class="badge">${data.ah}/${data.th}</div>
+                        ${badgeHtml}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
         }
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-        window.mesh = new THREE.Mesh(new THREE.TorusKnotGeometry(10, 3, 100, 16), new THREE.MeshPhongMaterial({ color: 0xff0000, wireframe: true }));
-        scene.add(window.mesh);
-        scene.add(new THREE.PointLight(0xffffff, 1, 100).clone().translateZ(20));
-        camera.position.z = 30;
-        function animate() { requestAnimationFrame(animate); window.mesh.rotation.y += 0.005; renderer.render(scene, camera); }
-        animate();
-        refreshUI();
+        function renderHomePreview() {
+            const today = getTodayName();
+            const classes = getSchedule(today);
+            const container = document.getElementById('today-preview');
+            
+            if(classes.length === 0) {
+                container.innerHTML = "No classes today. Enjoy!";
+            } else {
+                container.innerHTML = `${classes.length} Sessions Scheduled`;
+            }
+        }
+
+        // --- NAVIGATION ---
+        function navTo(viewId) {
+            // Hide all
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            
+            // Show Target
+            const target = document.getElementById(`view-${viewId}`);
+            if(target) target.classList.add('active');
+
+            // Logic hooks
+            if(viewId === 'home') {
+                renderGlobalStats();
+                renderHomePreview();
+                document.getElementById('save-btn-container').style.display = 'none';
+            } else if (viewId === 'today') {
+                renderClassList(getTodayName(), 'today-list');
+                document.getElementById('save-btn-container').style.display = 'block';
+            } else if (viewId === 'timetable') {
+                renderFullWeek();
+                document.getElementById('save-btn-container').style.display = 'none';
+            } else if (viewId === 'analytics') {
+                renderAnalytics();
+                document.getElementById('save-btn-container').style.display = 'none';
+            }
+        }
+
+        function refreshAll() {
+            // Update current view content without changing view
+            renderGlobalStats();
+            document.getElementById('sat-selector').value = satMode;
+            if(document.getElementById('view-today').classList.contains('active')) renderClassList(getTodayName(), 'today-list');
+            if(document.getElementById('view-analytics').classList.contains('active')) renderAnalytics();
+            if(document.getElementById('view-home').classList.contains('active')) renderHomePreview();
+        }
+
+        // --- INIT ---
+        document.getElementById('sat-selector').value = satMode;
+        renderGlobalStats();
+        renderHomePreview();
+
     </script>
 </body>
-
 </html>
