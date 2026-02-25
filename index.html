@@ -4,20 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0d1117">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#ffffff">
     <title>Command | Aditya C.</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg: #0d1117;
-            --card: #161b22;
-            --border: #30363d;
-            --accent: #58a6ff;
-            --danger: #da3633;
-            --success: #238636;
-            --text-main: #c9d1d9;
-            --text-sub: #8b949e;
+            --bg: #ffffff;
+            --card: #f8f8f8;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            --border: #e5e5ea;
+            --accent: #FF6B00; /* Vibrant Orange */
+            --accent-dim: rgba(255, 107, 0, 0.1);
+            --danger: #ff3b30;
+            --success: #34c759;
+            --text-main: #000000;
+            --text-sub: #8e8e93;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
@@ -32,185 +34,137 @@
 
         /* --- HEADER --- */
         .app-header {
-            padding: 40px 24px 20px;
-            background: linear-gradient(180deg, rgba(22,27,34,1) 0%, rgba(13,17,23,0) 100%);
+            padding: 50px 24px 20px;
+            background: var(--bg);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid transparent;
         }
 
-        .user-info h1 { margin: 0; font-size: 1.4rem; color: white; letter-spacing: -0.5px; }
-        .user-info p { margin: 4px 0 0; font-size: 0.9rem; color: var(--text-sub); font-family: monospace; letter-spacing: 1px; }
+        .user-info h1 { margin: 0; font-size: 1.6rem; color: var(--text-main); letter-spacing: -0.5px; font-weight: 800; }
+        .user-info p { margin: 4px 0 0; font-size: 0.9rem; color: var(--text-sub); font-family: monospace; letter-spacing: 0.5px; font-weight: 500; }
         
         .global-badge {
-            background: rgba(22, 27, 34, 0.8);
-            border: 1px solid var(--border);
+            background: var(--text-main);
+            color: var(--bg);
+            border: none;
             padding: 8px 16px;
             border-radius: 30px;
             font-weight: 800;
             font-size: 0.95rem;
-            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         /* --- LIVE WIDGET --- */
-        .live-container {
-            padding: 10px 24px 30px;
-        }
-
-        .live-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent);
-            margin-bottom: 15px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .live-container { padding: 10px 24px 30px; }
+        .live-label { 
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; 
+            color: var(--accent); margin-bottom: 15px; font-weight: 800; 
+            display: flex; align-items: center; gap: 10px; 
         }
         
-        .pulsate {
-            width: 8px; height: 8px; background: var(--accent); border-radius: 50%;
-            box-shadow: 0 0 0 rgba(88, 166, 255, 0.4);
-            animation: pulse 2s infinite;
+        .pulsate { 
+            width: 8px; height: 8px; background: var(--accent); border-radius: 50%; 
+            animation: pulse 2s infinite; 
         }
         @keyframes pulse { 
-            0% { box-shadow: 0 0 0 0 rgba(88, 166, 255, 0.7); } 
-            70% { box-shadow: 0 0 0 10px rgba(88, 166, 255, 0); } 
-            100% { box-shadow: 0 0 0 0 rgba(88, 166, 255, 0); } 
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); } 
+            70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); } 
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0); } 
         }
 
         .active-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 35px 25px;
-            text-align: center;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+            background: #ffffff; 
+            border: 2px solid var(--border); 
+            border-radius: 24px; padding: 35px 25px; text-align: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            cursor: pointer; position: relative; overflow: hidden;
+            box-shadow: var(--card-shadow);
         }
-
         .active-card:active { transform: scale(0.96); }
-
-        .course-code { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; display: block; color: white; letter-spacing: -1px; }
-        .course-name { font-size: 1rem; color: var(--text-sub); margin-bottom: 25px; display: block; font-weight: 500; }
         
-        .status-indicator {
-            font-size: 0.8rem;
-            font-weight: bold;
-            padding: 10px 24px;
-            border-radius: 30px;
-            background: rgba(255,255,255,0.06);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: background 0.3s;
-        }
-
-        /* STATE COLORS */
-        .active-card.state-present {
-            background: var(--success);
-            border-color: rgba(255,255,255,0.2);
-            color: white;
-            box-shadow: 0 20px 40px -10px rgba(35, 134, 54, 0.5);
-        }
-        .active-card.state-present .course-name { color: rgba(255,255,255,0.9); }
-        .active-card.state-present .status-indicator { background: rgba(0,0,0,0.2); }
-
-        .active-card.state-absent {
-            background: var(--danger);
-            border-color: rgba(255,255,255,0.2);
-            color: white;
-            box-shadow: 0 20px 40px -10px rgba(218, 54, 51, 0.5);
-        }
-        .active-card.state-absent .course-name { color: rgba(255,255,255,0.9); }
-        .active-card.state-absent .status-indicator { background: rgba(0,0,0,0.2); }
-
-        /* --- GRID MENU --- */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            padding: 0 24px;
-        }
-
-        .menu-item {
-            background: var(--card);
+        .course-code { font-size: 2.5rem; font-weight: 900; margin-bottom: 5px; display: block; color: var(--text-main); letter-spacing: -1px; }
+        .course-name { font-size: 1rem; color: var(--text-sub); margin-bottom: 25px; display: block; font-weight: 600; }
+        
+        .status-indicator { 
+            font-size: 0.8rem; font-weight: bold; padding: 10px 24px; 
+            border-radius: 30px; background: var(--card); color: var(--text-main);
+            display: inline-flex; align-items: center; gap: 8px; 
+            text-transform: uppercase; letter-spacing: 1px; 
             border: 1px solid var(--border);
-            padding: 24px;
-            border-radius: 20px;
-            text-align: center;
-            transition: transform 0.2s;
         }
-        .menu-item:active { transform: scale(0.98); background: rgba(22,27,34,0.6); }
-        .menu-item i { font-size: 1.6rem; margin-bottom: 12px; display: block; color: var(--text-main); }
-        .menu-item span { font-size: 0.9rem; font-weight: 600; color: var(--text-sub); }
+
+        /* STATES */
+        .active-card.state-present { background: var(--success); border-color: var(--success); color: white; box-shadow: 0 10px 30px rgba(52, 199, 89, 0.4); }
+        .active-card.state-present .course-code, .active-card.state-present .course-name, .active-card.state-present .status-indicator { color: white; }
+        .active-card.state-present .status-indicator { background: rgba(255,255,255,0.2); border-color: transparent; }
+
+        .active-card.state-absent { background: var(--danger); border-color: var(--danger); color: white; box-shadow: 0 10px 30px rgba(255, 59, 48, 0.4); }
+        .active-card.state-absent .course-code, .active-card.state-absent .course-name, .active-card.state-absent .status-indicator { color: white; }
+        .active-card.state-absent .status-indicator { background: rgba(255,255,255,0.2); border-color: transparent; }
+
+        /* --- MENU --- */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 24px; }
+        .menu-item { 
+            background: #ffffff; border: 1px solid var(--border); 
+            padding: 24px; border-radius: 20px; text-align: center; 
+            transition: transform 0.2s; box-shadow: var(--card-shadow);
+        }
+        .menu-item:active { transform: scale(0.98); background: var(--card); }
+        .menu-item i { font-size: 1.6rem; margin-bottom: 12px; display: block; color: var(--accent); }
+        .menu-item span { font-size: 0.9rem; font-weight: 700; color: var(--text-main); }
 
         /* --- VIEWS --- */
         .section-view { display: none; padding: 20px 24px; animation: fadeIn 0.3s ease; }
         .section-view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        .back-nav { 
+            padding: 10px 0 20px; font-weight: 800; color: var(--text-main); 
+            cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 1rem; 
+        }
+        .back-nav i { color: var(--accent); }
+
+        /* --- INSIGHT CARDS --- */
+        .insight-card {
+            background: #ffffff; border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 15px;
+            box-shadow: var(--card-shadow);
+        }
+        .insight-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .insight-title { font-weight: 800; font-size: 1.1rem; color: var(--text-main); }
+        .insight-pct { font-weight: 900; font-size: 1.2rem; }
+        
+        .progress-track { width: 100%; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
+        .progress-fill { height: 100%; border-radius: 4px; }
+        
+        .insight-footer {
+            background: #fafafa; padding: 12px; border-radius: 12px; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;
+        }
+        .rec-badge { padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;}
+        .rec-danger { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
+        .rec-safe { background: rgba(52, 199, 89, 0.1); color: var(--success); }
+
+        /* --- LIST ITEMS --- */
         .list-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 16px 20px;
-            border-radius: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: #ffffff; border: 1px solid var(--border);
+            padding: 16px 20px; border-radius: 16px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: var(--card-shadow);
         }
+        
+        /* --- TIMETABLE MINI BUTTONS --- */
+        .btn-group-mini { display: flex; gap: 8px; }
+        .btn-mini { width: 32px; height: 32px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; cursor: pointer; }
+        .btn-mini-p { background: rgba(52, 199, 89, 0.1); color: var(--success); }
+        .btn-mini-a { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
 
-        .back-nav {
-            padding: 10px 0 20px;
-            font-weight: 700;
-            color: var(--accent);
-            cursor: pointer;
-            display: flex; align-items: center; gap: 8px;
-            font-size: 0.95rem;
-        }
-
-        /* --- MANUAL BUTTONS IN TIMETABLE --- */
-        .btn-group-mini {
-            display: flex;
-            gap: 8px;
-        }
-        .btn-mini {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-        .btn-mini-p { background: rgba(35, 134, 54, 0.2); color: #3fb950; border: 1px solid rgba(35, 134, 54, 0.4); }
-        .btn-mini-a { background: rgba(218, 54, 51, 0.2); color: #f85149; border: 1px solid rgba(218, 54, 51, 0.4); }
-        .btn-mini:active { transform: scale(0.9); }
-
-        /* --- RESET BUTTON --- */
+        /* --- RESET --- */
         .reset-zone { text-align: center; margin-top: 50px; padding-bottom: 50px; }
-        .btn-reset { 
-            background: transparent; 
-            border: 1px solid var(--danger); 
-            color: var(--danger); 
-            padding: 14px 28px; 
-            border-radius: 12px; 
-            font-weight: bold; 
-            font-size: 0.9rem;
-            width: 100%;
-            opacity: 0.7;
-        }
-        .btn-reset:active { opacity: 1; background: rgba(218, 54, 51, 0.1); }
+        .btn-reset { background: transparent; border: 2px solid var(--danger); color: var(--danger); padding: 14px 28px; border-radius: 12px; font-weight: 800; font-size: 0.9rem; width: 100%; }
+        
+        /* DEADLINE */
+        #days-left { background: var(--accent); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; }
 
     </style>
 </head>
@@ -222,7 +176,7 @@
                 <h1>Aditya Chalawadi</h1>
                 <p>20221CBD0001</p>
             </div>
-            <div class="global-badge" id="global-pct" style="color: var(--success)">--%</div>
+            <button class="global-badge" id="global-pct">--%</button>
         </div>
 
         <div class="live-container">
@@ -230,48 +184,54 @@
                 <div class="pulsate"></div>
                 <span id="time-display">LOADING...</span>
             </div>
-            
             <div id="live-card-area">
-                <div class="active-card" style="opacity: 0.5;">
+                <div class="active-card" style="opacity: 0.6; border-style:dashed;">
                     <span class="course-code">--</span>
                     <span class="course-name">Searching Schedule...</span>
                 </div>
             </div>
-            <p style="text-align:center; font-size: 0.8rem; color: var(--text-sub); margin-top: 25px; opacity: 0.6;">
-                Tap once for <span style="color:var(--success)">Present</span>, twice for <span style="color:var(--danger)">Absent</span>.
+            <p style="text-align:center; font-size: 0.8rem; color: var(--text-sub); margin-top: 25px; font-weight: 500;">
+                <span style="color:var(--success); font-weight:bold;">Tap Once (P)</span> • <span style="color:var(--danger); font-weight:bold;">Tap Twice (A)</span>
             </p>
         </div>
 
         <div class="menu-grid">
             <div class="menu-item" onclick="switchView('timetable')">
-                <i class="fas fa-calendar-day" style="color: var(--accent)"></i>
-                <span>Manual Entry</span>
+                <i class="fas fa-list-ul"></i>
+                <span>Timetable</span>
             </div>
             <div class="menu-item" onclick="switchView('stats')">
-                <i class="fas fa-chart-pie" style="color: var(--warning)"></i>
-                <span>Analytics</span>
+                <i class="fas fa-chart-pie"></i>
+                <span>Insights</span>
             </div>
         </div>
     </div>
 
     <div id="view-timetable" class="section-view">
         <div class="back-nav" onclick="switchView('home')">
-            <i class="fas fa-arrow-left"></i> Dashboard
+            <i class="fas fa-arrow-left"></i> Home
         </div>
-        <h2 style="margin: 0 0 10px 0; font-size: 1.6rem; letter-spacing: -0.5px;">All Classes</h2>
-        <p style="margin: 0 0 25px 0; font-size: 0.85rem; color: var(--text-sub);">Tap P or A to log missed classes.</p>
+        <h2 style="margin: 0 0 10px 0; font-size: 1.8rem; color:var(--text-main);">Log Classes</h2>
+        <p style="margin: 0 0 25px 0; font-size: 0.9rem; color: var(--text-sub);">Manual entry for missed classes.</p>
         <div id="full-schedule-list"></div>
     </div>
 
     <div id="view-stats" class="section-view">
         <div class="back-nav" onclick="switchView('home')">
-            <i class="fas fa-arrow-left"></i> Dashboard
+            <i class="fas fa-arrow-left"></i> Home
         </div>
-        <h2 style="margin: 0 0 25px 0; font-size: 1.6rem; letter-spacing: -0.5px;">Analytics</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+            <h2 style="margin: 0; font-size: 1.8rem; color:var(--text-main);">Insights</h2>
+            <div style="text-align:right;">
+                <div style="font-size:0.7rem; color:var(--text-sub); text-transform:uppercase; font-weight:bold; margin-bottom:4px;">Deadline: May 6</div>
+                <span id="days-left">-- Days</span>
+            </div>
+        </div>
+
         <div id="stats-list"></div>
         
         <div class="reset-zone">
-            <button class="btn-reset" onclick="factoryReset()">⚠️ Factory Reset Data</button>
+            <button class="btn-reset" onclick="factoryReset()">Factory Reset Data</button>
         </div>
     </div>
 
@@ -309,102 +269,85 @@
             { start: "15:10", end: "16:00", index: 6 }
         ];
 
-        let userData = JSON.parse(localStorage.getItem('aditya_db_final')) || COURSES;
-        let sessionState = JSON.parse(localStorage.getItem('aditya_session_final')) || {};
+        let userData = JSON.parse(localStorage.getItem('aditya_db_light')) || COURSES;
+        let sessionState = JSON.parse(localStorage.getItem('aditya_session_light')) || {};
+
+        // --- LOGIC ---
+        function updateDaysLeft() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            let target = new Date(`${currentYear}-05-06`);
+            if (now > target) target = new Date(`${currentYear + 1}-05-06`);
+            const diffTime = Math.abs(target - now);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            document.getElementById('days-left').innerText = diffDays + " Days Left";
+        }
 
         function save() {
-            localStorage.setItem('aditya_db_final', JSON.stringify(userData));
-            localStorage.setItem('aditya_session_final', JSON.stringify(sessionState));
+            localStorage.setItem('aditya_db_light', JSON.stringify(userData));
+            localStorage.setItem('aditya_session_light', JSON.stringify(sessionState));
             updateGlobal();
         }
 
-        function getDayName() {
-            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            return days[new Date().getDay()];
-        }
-
-        function timeStrToVal(str) {
-            const [h, m] = str.split(':').map(Number);
-            return h * 60 + m;
-        }
-
+        function getDayName() { return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()]; }
+        function timeStrToVal(str) { const [h, m] = str.split(':').map(Number); return h * 60 + m; }
+        
         function getCurrentSlotIndex() {
             const now = new Date();
             const nowVal = now.getHours() * 60 + now.getMinutes();
             for (let slot of TIME_SLOTS) {
-                if (nowVal >= timeStrToVal(slot.start) && nowVal < timeStrToVal(slot.end)) {
-                    return slot.index;
-                }
+                if (nowVal >= timeStrToVal(slot.start) && nowVal < timeStrToVal(slot.end)) return slot.index;
             }
             return -1;
         }
 
-        // --- CORE FUNCTIONS ---
-
+        // --- RENDERERS ---
         function updateLiveCard() {
             const day = getDayName();
             const slotIdx = getCurrentSlotIndex();
             const container = document.getElementById('live-card-area');
             const timeDisplay = document.getElementById('time-display');
-
             const now = new Date();
             timeDisplay.innerText = `${day.toUpperCase()} | ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
 
             if (SCHEDULE[day] && slotIdx !== -1 && slotIdx < SCHEDULE[day].length) {
-                const courseCode = SCHEDULE[day][slotIdx];
-                if (courseCode) {
+                const code = SCHEDULE[day][slotIdx];
+                if (code) {
                     const uniqueKey = `${day}-${slotIdx}`;
-                    const currentState = sessionState[uniqueKey] || 0; 
-                    const courseName = userData[courseCode].name;
-
-                    let stateClass = "";
-                    let statusText = "Tap to Mark";
-                    let icon = '<i class="fas fa-fingerprint"></i>';
+                    const cur = sessionState[uniqueKey] || 0;
+                    const name = userData[code].name;
+                    let cls = "", txt = "Mark Attendance", icon = '<i class="fas fa-fingerprint"></i>';
                     
-                    if(currentState === 1) { stateClass = "state-present"; statusText = "Present"; icon = '<i class="fas fa-check"></i>'; }
-                    if(currentState === 2) { stateClass = "state-absent"; statusText = "Absent"; icon = '<i class="fas fa-times"></i>'; }
+                    if(cur === 1) { cls = "state-present"; txt = "Present"; icon = '<i class="fas fa-check"></i>'; }
+                    if(cur === 2) { cls = "state-absent"; txt = "Absent"; icon = '<i class="fas fa-times"></i>'; }
 
                     container.innerHTML = `
-                        <div class="active-card ${stateClass}" onclick="toggleAttendance('${courseCode}', '${uniqueKey}')">
-                            <span class="course-code">${courseCode}</span>
-                            <span class="course-name">${courseName}</span>
-                            <div class="status-indicator">${icon} ${statusText}</div>
-                        </div>
-                    `;
+                        <div class="active-card ${cls}" onclick="toggleAttendance('${code}', '${uniqueKey}')">
+                            <span class="course-code">${code}</span>
+                            <span class="course-name">${name}</span>
+                            <div class="status-indicator">${icon} ${txt}</div>
+                        </div>`;
                     return;
                 }
             }
-            container.innerHTML = `
-                <div class="active-card" style="border: 2px dashed var(--border); background: transparent; opacity: 0.6;">
-                    <span class="course-code" style="font-size:1.5rem; color:var(--text-sub);">FREE</span>
-                    <span class="course-name" style="margin-bottom:0">No Class Detected</span>
-                </div>
-            `;
+            container.innerHTML = `<div class="active-card" style="border: 2px dashed var(--border); background: transparent; opacity: 0.4;"><span class="course-code" style="font-size:1.5rem; color:var(--text-sub);">FREE</span><span class="course-name" style="margin-bottom:0">No Class Detected</span></div>`;
         }
 
         function toggleAttendance(code, key) {
             let cur = sessionState[key] || 0;
             let next = (cur + 1) % 3;
-
             if (cur === 1) { userData[code].ah--; userData[code].th--; }
             if (cur === 2) { userData[code].th--; }
-
             if (next === 1) { userData[code].ah++; userData[code].th++; }
             if (next === 2) { userData[code].th++; }
-
             sessionState[key] = next;
-            save();
-            updateLiveCard();
-            renderStats();
+            save(); updateLiveCard(); renderStats();
         }
 
         function manualLog(code, isPresent) {
             userData[code].th++;
             if (isPresent) userData[code].ah++;
-            save();
-            renderStats();
-            updateGlobal();
-            alert(`Logged: ${code} as ${isPresent ? 'PRESENT' : 'ABSENT'}`);
+            save(); renderStats(); updateGlobal();
         }
 
         function updateGlobal() {
@@ -413,25 +356,40 @@
             const pct = th === 0 ? 0 : (ah/th)*100;
             const el = document.getElementById('global-pct');
             el.innerText = pct.toFixed(1) + "%";
-            el.style.color = pct >= 75 ? "var(--success)" : "var(--danger)";
-            el.style.borderColor = pct >= 75 ? "var(--success)" : "var(--danger)";
+            el.style.background = pct >= 75 ? "var(--text-main)" : "var(--danger)";
         }
 
         function renderStats() {
             const div = document.getElementById('stats-list');
             div.innerHTML = "";
             const sorted = Object.entries(userData).sort(([,a], [,b]) => (a.ah/a.th) - (b.ah/b.th));
+            
             sorted.forEach(([code, data]) => {
                 const pct = (data.ah / data.th) * 100;
+                const isSafe = pct >= 75;
+                
+                let insightHtml = "";
+                if(isSafe) {
+                    const budget = Math.floor((data.ah - 0.75 * data.th) / 0.75);
+                    insightHtml = `<span class="rec-badge rec-safe">Bunk: ${budget}</span>`;
+                } else {
+                    const need = Math.ceil((0.75 * data.th - data.ah) / 0.25);
+                    insightHtml = `<span class="rec-badge rec-danger">Attend: ${need}</span>`;
+                }
+
                 div.innerHTML += `
-                    <div class="list-card">
-                        <div>
-                            <div style="font-weight:700; color:white;">${code}</div>
-                            <div style="font-size:0.8rem; opacity:0.6;">${data.name}</div>
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <span class="insight-title">${code}</span>
+                            <span class="insight-pct" style="color:${isSafe?'var(--success)':'var(--danger)'}">${pct.toFixed(0)}%</span>
                         </div>
-                        <div style="text-align:right">
-                            <div style="font-weight:800; font-size:1.1rem; color:${pct<75?'var(--danger)':'var(--success)'}">${pct.toFixed(0)}%</div>
-                            <div style="font-size:0.75rem; opacity:0.5;">${data.ah}/${data.th}</div>
+                        <div style="font-size:0.85rem; color:var(--text-sub); margin-bottom:10px;">${data.name}</div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width:${Math.min(pct,100)}%; background:${isSafe?'var(--success)':'var(--danger)'}"></div>
+                        </div>
+                        <div class="insight-footer">
+                            <div style="flex:1; opacity:0.8; font-weight:600; color:var(--text-main);">${data.ah}/${data.th} Classes</div>
+                            ${insightHtml}
                         </div>
                     </div>
                 `;
@@ -442,27 +400,23 @@
             const div = document.getElementById('full-schedule-list');
             div.innerHTML = "";
             const today = getDayName();
-            
             Object.keys(SCHEDULE).forEach(day => {
                 const isToday = (day === today);
-                div.innerHTML += `<div style="margin-top:25px; color:${isToday ? 'var(--accent)' : 'var(--text-sub)'}; font-weight:800; font-size:0.85rem; letter-spacing:1px; text-transform:uppercase; border-bottom: 1px solid var(--border); padding-bottom:5px; margin-bottom:10px;">${day}</div>`;
-                
+                div.innerHTML += `<div style="margin-top:25px; color:${isToday ? 'var(--accent)' : 'var(--text-sub)'}; font-weight:900; font-size:0.85rem; text-transform:uppercase; border-bottom: 2px solid var(--border); padding-bottom:5px; margin-bottom:10px;">${day}</div>`;
                 SCHEDULE[day].forEach((code, idx) => {
                     const slot = TIME_SLOTS.find(t => t.index === idx);
                     const time = slot ? slot.start : `Slot ${idx+1}`;
-                    
                     div.innerHTML += `
-                        <div class="list-card" style="padding:12px; margin-bottom:6px; background: rgba(255,255,255,0.03);">
+                        <div class="list-card">
                             <div style="display:flex; align-items:center; gap:15px; flex:1;">
-                                <span style="font-size:0.75rem; opacity:0.5; width:40px;">${time}</span>
-                                <span style="font-size:0.9rem; font-weight:bold;">${code}</span>
+                                <span style="font-size:0.75rem; color:var(--text-sub); width:40px; font-weight:600;">${time}</span>
+                                <span style="font-size:0.95rem; font-weight:bold; color:var(--text-main);">${code}</span>
                             </div>
                             <div class="btn-group-mini">
                                 <button class="btn-mini btn-mini-p" onclick="manualLog('${code}', true)">P</button>
                                 <button class="btn-mini btn-mini-a" onclick="manualLog('${code}', false)">A</button>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
             });
         }
@@ -474,18 +428,11 @@
         }
 
         function factoryReset() {
-            if(confirm("Confirm Reset? All attendance data will be lost.")) {
-                localStorage.clear();
-                location.reload();
-            }
+            if(confirm("Confirm Reset?")) { localStorage.clear(); location.reload(); }
         }
 
         setInterval(updateLiveCard, 15000);
-        updateLiveCard();
-        updateGlobal();
-        renderStats();
-        renderTimetable();
-
+        updateLiveCard(); updateGlobal(); renderStats(); renderTimetable(); updateDaysLeft();
     </script>
 </body>
 </html>
