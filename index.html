@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Ops | Command v7.0</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card: #161b22;
+            --border: #30363d;
+            --accent: #58a6ff;
+            --danger: #f85149;
+            --success: #3fb950;
+            --warning: #d29922;
+            --text: #c9d1d9;
+            --holiday: #8b949e;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(22, 27, 34, 0.9);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(15px);
+        }
+
+        .total-pct {
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        /* Timetable UI */
+        .timetable-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 50px;
+            overflow-x: auto;
+        }
+
+        .day-col {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            padding: 10px;
+            min-width: 180px;
+        }
+
+        .day-name {
+            text-align: center;
+            padding: 10px;
+            color: var(--accent);
+            font-weight: 800;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 15px;
+        }
+
+        .class-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            border: none;
+            padding: 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.7rem;
+            color: white;
+        }
+
+        .btn-p {
+            background: var(--success);
+        }
+
+        .btn-a {
+            background: var(--danger);
+        }
+
+        /* Holiday & Sat Styles */
+        .holiday-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .h-badge {
+            background: #30363d;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            border: 1px solid var(--holiday);
+        }
+
+        .sat-selector {
+            margin-bottom: 15px;
+            background: var(--card);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--accent);
+        }
+
+        select {
+            background: #0d1117;
+            color: white;
+            border: 1px solid var(--border);
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .course-stat-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .badge-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .info-badge {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .needed-badge {
+            background: rgba(210, 153, 34, 0.1);
+            color: var(--warning);
+            border-color: rgba(210, 153, 34, 0.2);
+        }
+
+        .budget-badge {
+            background: rgba(88, 166, 255, 0.1);
+            color: var(--accent);
+            border-color: rgba(88, 166, 255, 0.2);
+        }
+
+        .progress-container {
+            height: 6px;
+            background: #333;
+            margin: 12px 0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.6s ease;
+        }
+
+        .reset-container {
+            text-align: center;
+            margin-top: 50px;
+            padding-bottom: 50px;
+        }
+
+        .btn-reset {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            opacity: 0.6;
+        }
+
+        .btn-reset:hover {
+            opacity: 1;
+            background: rgba(248, 81, 73, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="stats-header">
+            <div>
+                <h1 style="margin:0">RECOVERY COMMAND v7.0</h1>
+                <p id="today-info" style="margin:5px 0; color: var(--success);">● Local Sync Active</p>
+                <div class="holiday-list" id="holiday-badges"></div>
+            </div>
+            <div style="text-align: right;">
+                <p style="margin:0; font-size: 0.7rem; opacity: 0.5;">REAL-TIME AVERAGE</p>
+                <div id="global-pct" class="total-pct">--%</div>
+            </div>
+        </div>
+
+        <div class="sat-selector">
+            <strong>🛠 SATURDAY SWAP:</strong> Follow
+            <select id="sat-day-select" onchange="updateSaturdaySchedule()">
+                <option value="">-- No Class --</option>
+                <option value="Monday">Monday's Timetable</option>
+                <option value="Tuesday">Tuesday's Timetable</option>
+                <option value="Wednesday">Wednesday's Timetable</option>
+                <option value="Thursday">Thursday's Timetable</option>
+                <option value="Friday">Friday's Timetable</option>
+            </select>
+        </div>
+
+        <div class="timetable-grid" id="timetable"></div>
+
+        <h2
+            style="font-size: 1rem; color: var(--accent); border-left: 4px solid var(--accent); padding-left: 10px; margin-bottom: 20px;">
+            ANALYTICS & BUNK BUDGET</h2>
+        <div class="inventory-grid" id="inventory"></div>
+
+        <div class="reset-container">
+            <button class="btn-reset" onclick="resetData()">Wipe Data & Reset to 48% Stats</button>
+        </div>
+    </div>
+
+    <script>
+        const INITIAL_DATA = {
+            "APT4026": { name: "Aptitude", ah: 8, th: 14 },
+            "CAI2500": { name: "Machine Learning (T)", ah: 4, th: 18 },
+            "CAI2501": { name: "Machine Learning (L)", ah: 15, th: 25 },
+            "CBD2510": { name: "No SQL (T)", ah: 4, th: 19 },
+            "CBD2511": { name: "No SQL (L)", ah: 8, th: 14 },
+            "CSE2258": { name: "Web Tech (T)", ah: 9, th: 19 },
+            "CSE2259": { name: "Web Tech (L)", ah: 12, th: 14 },
+            "CSE2274": { name: "Comp Programming", ah: 11, th: 24 },
+            "CSE3426": { name: "Front-End Full Stack", ah: 11, th: 23 },
+            "ECE3097": { name: "Smart Electronics", ah: 9, th: 19 },
+            "LAW7601": { name: "Indian Constitution", ah: 2, th: 4 }
+        };
+
+        const holidays = [
+            "Mar 10-14: Mid-terms", "Mar 19: Ugadi", "Mar 21: Ramzan",
+            "Apr 3: Good Friday", "Apr 10-11: INVINCIA", "May 1: May Day"
+        ];
+
+        const schedule = {
+            "Monday": ["CAI2500", "CBD2510", "CSE2274", "CSE2274", "CSE2258", "CSE3426", "ECE3097"],
+            "Tuesday": ["CAI2500", "CSE2258", "CSE3426", "CBD2510", "CAI2500", "ECE3097"],
+            "Wednesday": ["CSE2274", "CSE2274", "CAI2501", "CAI2501", "LAW7601", "CSE3426", "CSE3426"],
+            "Thursday": ["CBD2510", "APT4026", "APT4026", "CAI2501", "CAI2501", "ECE3097"],
+            "Friday": ["CBD2511", "CBD2511", "CSE2259", "CSE2259", "CSE2259", "CSE2259", "CSE2258"],
+            "Saturday": []
+        };
+
+        // Load Persistent Data
+        let courses = JSON.parse(localStorage.getItem('attendanceData_v7')) || INITIAL_DATA;
+
+        function save() {
+            localStorage.setItem('attendanceData_v7', JSON.stringify(courses));
+        }
+
+        function resetData() {
+            if (confirm("Are you sure? This will reset all your manual logs.")) {
+                courses = JSON.parse(JSON.stringify(INITIAL_DATA));
+                save();
+                refreshUI();
+            }
+        }
+
+        function refreshUI() {
+            renderHolidayBadges();
+            renderTimetable();
+            renderInventory();
+            updateGlobal();
+        }
+
+        function renderHolidayBadges() {
+            const container = document.getElementById('holiday-badges');
+            container.innerHTML = holidays.map(h => `<div class="h-badge">📅 ${h}</div>`).join('');
+        }
+
+        function updateSaturdaySchedule() {
+            const selectedDay = document.getElementById('sat-day-select').value;
+            schedule["Saturday"] = selectedDay ? [...schedule[selectedDay]] : [];
+            renderTimetable();
+        }
+
+        function renderTimetable() {
+            const container = document.getElementById('timetable');
+            container.innerHTML = '';
+            Object.keys(schedule).forEach(day => {
+                const col = document.createElement('div');
+                col.className = 'day-col';
+                col.innerHTML = `<div class="day-name">${day}</div>`;
+                if (schedule[day].length === 0) col.innerHTML += `<div style="text-align:center; opacity:0.3; font-size:0.8rem">No classes</div>`;
+                schedule[day].forEach(code => {
+                    const c = courses[code];
+                    const card = document.createElement('div');
+                    card.className = 'class-card';
+                    card.innerHTML = `
+                        <strong>${code}</strong><br><span style="font-size:0.7rem; opacity:0.6">${c.name}</span>
+                        <div class="btn-group">
+                            <button class="btn btn-p" onclick="log('${code}', true)">P</button>
+                            <button class="btn btn-a" onclick="log('${code}', false)">B</button>
+                        </div>`;
+                    col.appendChild(card);
+                });
+                container.appendChild(col);
+            });
+        }
+
+        function renderInventory() {
+            const container = document.getElementById('inventory');
+            container.innerHTML = '';
+            Object.keys(courses).forEach(code => {
+                const c = courses[code];
+                const pct = (c.ah / c.th);
+                const pctDisplay = (pct * 100).toFixed(1);
+
+                let needed = 0;
+                let budget = 0;
+
+                if (pct < 0.75) {
+                    needed = Math.ceil((0.75 * c.th - c.ah) / 0.25);
+                } else {
+                    budget = Math.floor((c.ah - 0.75 * c.th) / 0.75);
+                }
+
+                const card = document.createElement('div');
+                card.className = 'course-stat-card';
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between"><strong>${code}</strong><span style="color:${pctDisplay < 75 ? 'var(--danger)' : 'var(--success)'}; font-weight:bold;">${pctDisplay}%</span></div>
+                    <div style="font-size:0.75rem; opacity:0.6; margin-top:4px">${c.name}</div>
+                    <div class="progress-container">
+                        <div class="progress-fill" style="width:${Math.min(pctDisplay, 100)}%; background:${pctDisplay < 75 ? 'var(--danger)' : 'var(--success)'}"></div>
+                    </div>
+                    <div class="badge-row">
+                        <div class="info-badge needed-badge">NEED: ${needed}</div>
+                        <div class="info-badge budget-badge">BUNK: ${budget}</div>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function updateGlobal() {
+            let tah = 0, tth = 0;
+            Object.values(courses).forEach(c => { tah += c.ah; tth += c.th; });
+            const global = ((tah / tth) * 100).toFixed(2);
+            const disp = document.getElementById('global-pct');
+            disp.innerText = global + "%";
+            disp.style.color = global < 75 ? 'var(--danger)' : 'var(--success)';
+            if (window.mesh) window.mesh.material.color.setHex(global < 75 ? 0xf85149 : 0x3fb950);
+        }
+
+        function log(code, present) {
+            courses[code].th++; if (present) courses[code].ah++;
+            save();
+            refreshUI();
+        }
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        window.mesh = new THREE.Mesh(new THREE.TorusKnotGeometry(10, 3, 100, 16), new THREE.MeshPhongMaterial({ color: 0xff0000, wireframe: true }));
+        scene.add(window.mesh);
+        scene.add(new THREE.PointLight(0xffffff, 1, 100).clone().translateZ(20));
+        camera.position.z = 30;
+        function animate() { requestAnimationFrame(animate); window.mesh.rotation.y += 0.005; renderer.render(scene, camera); }
+        animate();
+        refreshUI();
+    </script>
+</body>
+
+</html>
