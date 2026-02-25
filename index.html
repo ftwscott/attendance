@@ -27,7 +27,7 @@
             background: var(--bg);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            padding-bottom: 90px; /* Space for bottom content */
+            padding-bottom: 90px;
         }
 
         /* --- HEADER --- */
@@ -151,7 +151,7 @@
         .menu-item i { font-size: 1.6rem; margin-bottom: 12px; display: block; color: var(--text-main); }
         .menu-item span { font-size: 0.9rem; font-weight: 600; color: var(--text-sub); }
 
-        /* --- VIEWS (Hidden by default) --- */
+        /* --- VIEWS --- */
         .section-view { display: none; padding: 20px 24px; animation: fadeIn 0.3s ease; }
         .section-view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -175,6 +175,27 @@
             display: flex; align-items: center; gap: 8px;
             font-size: 0.95rem;
         }
+
+        /* --- MANUAL BUTTONS IN TIMETABLE --- */
+        .btn-group-mini {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-mini {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .btn-mini-p { background: rgba(35, 134, 54, 0.2); color: #3fb950; border: 1px solid rgba(35, 134, 54, 0.4); }
+        .btn-mini-a { background: rgba(218, 54, 51, 0.2); color: #f85149; border: 1px solid rgba(218, 54, 51, 0.4); }
+        .btn-mini:active { transform: scale(0.9); }
 
         /* --- RESET BUTTON --- */
         .reset-zone { text-align: center; margin-top: 50px; padding-bottom: 50px; }
@@ -224,7 +245,7 @@
         <div class="menu-grid">
             <div class="menu-item" onclick="switchView('timetable')">
                 <i class="fas fa-calendar-day" style="color: var(--accent)"></i>
-                <span>Timetable</span>
+                <span>Manual Entry</span>
             </div>
             <div class="menu-item" onclick="switchView('stats')">
                 <i class="fas fa-chart-pie" style="color: var(--warning)"></i>
@@ -237,7 +258,8 @@
         <div class="back-nav" onclick="switchView('home')">
             <i class="fas fa-arrow-left"></i> Dashboard
         </div>
-        <h2 style="margin: 0 0 25px 0; font-size: 1.6rem; letter-spacing: -0.5px;">Weekly Schedule</h2>
+        <h2 style="margin: 0 0 10px 0; font-size: 1.6rem; letter-spacing: -0.5px;">All Classes</h2>
+        <p style="margin: 0 0 25px 0; font-size: 0.85rem; color: var(--text-sub);">Tap P or A to log missed classes.</p>
         <div id="full-schedule-list"></div>
     </div>
 
@@ -254,7 +276,7 @@
     </div>
 
     <script>
-        // --- DATA CONFIGURATION ---
+        // --- DATA ---
         const COURSES = {
             "APT4026": { name: "Aptitude", ah: 8, th: 14 },
             "CAI2500": { name: "Machine Learning (T)", ah: 4, th: 18 },
@@ -269,7 +291,6 @@
             "LAW7601": { name: "Indian Constitution", ah: 2, th: 4 }
         };
 
-        // SCHEDULE ARRAYS (Order of classes in the day)
         const SCHEDULE = {
             "Monday": ["CAI2500", "CBD2510", "CSE2274", "CSE2274", "CSE2258", "CSE3426", "ECE3097"],
             "Tuesday": ["CAI2500", "CSE2258", "CSE3426", "CBD2510", "CAI2500", "ECE3097"],
@@ -278,20 +299,16 @@
             "Friday": ["CBD2511", "CBD2511", "CSE2259", "CSE2259", "CSE2259", "CSE2259", "CSE2258"]
         };
 
-        // TIME SLOTS (Mapping time to Array Index)
-        // Note: 1:40 PM is usually the 5th period (Index 4)
         const TIME_SLOTS = [
             { start: "08:00", end: "09:20", index: 0 },
             { start: "09:20", end: "10:10", index: 1 },
             { start: "10:20", end: "11:10", index: 2 },
             { start: "11:10", end: "12:00", index: 3 },
-            // Lunch Gap (12:00 - 13:30)
-            { start: "13:30", end: "14:20", index: 4 }, // 1:40 PM triggers this
+            { start: "13:30", end: "14:20", index: 4 }, 
             { start: "14:20", end: "15:10", index: 5 },
             { start: "15:10", end: "16:00", index: 6 }
         ];
 
-        // --- STORAGE & STATE ---
         let userData = JSON.parse(localStorage.getItem('aditya_db_final')) || COURSES;
         let sessionState = JSON.parse(localStorage.getItem('aditya_session_final')) || {};
 
@@ -301,7 +318,6 @@
             updateGlobal();
         }
 
-        // --- CORE LOGIC ---
         function getDayName() {
             const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             return days[new Date().getDay()];
@@ -323,7 +339,8 @@
             return -1;
         }
 
-        // --- RENDERERS ---
+        // --- CORE FUNCTIONS ---
+
         function updateLiveCard() {
             const day = getDayName();
             const slotIdx = getCurrentSlotIndex();
@@ -333,7 +350,6 @@
             const now = new Date();
             timeDisplay.innerText = `${day.toUpperCase()} | ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
 
-            // Check if schedule exists for today and slot is valid
             if (SCHEDULE[day] && slotIdx !== -1 && slotIdx < SCHEDULE[day].length) {
                 const courseCode = SCHEDULE[day][slotIdx];
                 if (courseCode) {
@@ -345,16 +361,8 @@
                     let statusText = "Tap to Mark";
                     let icon = '<i class="fas fa-fingerprint"></i>';
                     
-                    if(currentState === 1) { 
-                        stateClass = "state-present"; 
-                        statusText = "Present"; 
-                        icon = '<i class="fas fa-check"></i>';
-                    }
-                    if(currentState === 2) { 
-                        stateClass = "state-absent"; 
-                        statusText = "Absent"; 
-                        icon = '<i class="fas fa-times"></i>';
-                    }
+                    if(currentState === 1) { stateClass = "state-present"; statusText = "Present"; icon = '<i class="fas fa-check"></i>'; }
+                    if(currentState === 2) { stateClass = "state-absent"; statusText = "Absent"; icon = '<i class="fas fa-times"></i>'; }
 
                     container.innerHTML = `
                         <div class="active-card ${stateClass}" onclick="toggleAttendance('${courseCode}', '${uniqueKey}')">
@@ -366,8 +374,6 @@
                     return;
                 }
             }
-
-            // Fallback: No Class
             container.innerHTML = `
                 <div class="active-card" style="border: 2px dashed var(--border); background: transparent; opacity: 0.6;">
                     <span class="course-code" style="font-size:1.5rem; color:var(--text-sub);">FREE</span>
@@ -378,13 +384,11 @@
 
         function toggleAttendance(code, key) {
             let cur = sessionState[key] || 0;
-            let next = (cur + 1) % 3; // 0->1->2->0
+            let next = (cur + 1) % 3;
 
-            // Undo previous stats
             if (cur === 1) { userData[code].ah--; userData[code].th--; }
             if (cur === 2) { userData[code].th--; }
 
-            // Apply new stats
             if (next === 1) { userData[code].ah++; userData[code].th++; }
             if (next === 2) { userData[code].th++; }
 
@@ -392,6 +396,15 @@
             save();
             updateLiveCard();
             renderStats();
+        }
+
+        function manualLog(code, isPresent) {
+            userData[code].th++;
+            if (isPresent) userData[code].ah++;
+            save();
+            renderStats();
+            updateGlobal();
+            alert(`Logged: ${code} as ${isPresent ? 'PRESENT' : 'ABSENT'}`);
         }
 
         function updateGlobal() {
@@ -408,7 +421,6 @@
             const div = document.getElementById('stats-list');
             div.innerHTML = "";
             const sorted = Object.entries(userData).sort(([,a], [,b]) => (a.ah/a.th) - (b.ah/b.th));
-
             sorted.forEach(([code, data]) => {
                 const pct = (data.ah / data.th) * 100;
                 div.innerHTML += `
@@ -436,15 +448,18 @@
                 div.innerHTML += `<div style="margin-top:25px; color:${isToday ? 'var(--accent)' : 'var(--text-sub)'}; font-weight:800; font-size:0.85rem; letter-spacing:1px; text-transform:uppercase; border-bottom: 1px solid var(--border); padding-bottom:5px; margin-bottom:10px;">${day}</div>`;
                 
                 SCHEDULE[day].forEach((code, idx) => {
-                    // Find start time
                     const slot = TIME_SLOTS.find(t => t.index === idx);
                     const time = slot ? slot.start : `Slot ${idx+1}`;
                     
                     div.innerHTML += `
                         <div class="list-card" style="padding:12px; margin-bottom:6px; background: rgba(255,255,255,0.03);">
-                            <div style="display:flex; align-items:center; gap:15px;">
+                            <div style="display:flex; align-items:center; gap:15px; flex:1;">
                                 <span style="font-size:0.75rem; opacity:0.5; width:40px;">${time}</span>
                                 <span style="font-size:0.9rem; font-weight:bold;">${code}</span>
+                            </div>
+                            <div class="btn-group-mini">
+                                <button class="btn-mini btn-mini-p" onclick="manualLog('${code}', true)">P</button>
+                                <button class="btn-mini btn-mini-a" onclick="manualLog('${code}', false)">A</button>
                             </div>
                         </div>
                     `;
@@ -465,8 +480,7 @@
             }
         }
 
-        // --- INIT ---
-        setInterval(updateLiveCard, 15000); // Update every 15s
+        setInterval(updateLiveCard, 15000);
         updateLiveCard();
         updateGlobal();
         renderStats();
